@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="katman_2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 101.63 103.76">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #3c3c3b;
+      }
+
+      .cls-2 {
+        fill: #ccc;
+        font-family: Asap-Bold, Asap;
+        font-size: 71.2px;
+        font-weight: 700;
+      }
+
+      .cls-3 {
+        fill: #504f4e;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1">
+    <rect class="cls-1" width="90.19" height="90.19" rx="13.85" ry="13.85"/>
+    <rect class="cls-3" x="11.45" y="13.57" width="90.19" height="90.19" rx="13.85" ry="13.85"/>
+    <text class="cls-2" transform="translate(36.29 79.21)"><tspan x="0" y="0">T</tspan></text>
+  </g>
+</svg>
