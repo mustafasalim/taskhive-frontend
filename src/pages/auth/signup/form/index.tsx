@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { authService } from "@/services/auth-services"
+import { createModal } from "@/stores/store-actions/modal-action"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
@@ -39,7 +40,6 @@ const formSchema = z.object({
 
 const SignupForm = () => {
   const navigate = useNavigate()
-
   const signupMutation = useMutation({
     mutationFn: authService.authSignup,
 
@@ -59,6 +59,7 @@ const SignupForm = () => {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     signupMutation.mutate(values)
+    createModal("verify-email")
   }
 
   if (signupMutation.isPending) return <Spinner />
