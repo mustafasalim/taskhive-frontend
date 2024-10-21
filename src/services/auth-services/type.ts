@@ -12,3 +12,13 @@ export interface IAuthSignup {
 export interface IAuthVerifyEmail {
   verificationCode: string
 }
+
+export interface IAuthForgotPassword {
+  email: string
+}
+
+export interface IAuthResetPassword {
+  token: string
+  password: string
+  confirmPassword: string
+}

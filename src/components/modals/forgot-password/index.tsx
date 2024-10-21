@@ -13,111 +13,98 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSeparator,
-  InputOTPSlot,
-} from "@/components/ui/input-otp"
+import { Input } from "@/components/ui/input"
 import { toast } from "@/hooks/use-toast"
 import { authService } from "@/services/auth-services"
 import { destroyAllModal } from "@/stores/store-actions/modal-action"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { CircleCheckBig, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
-import { useNavigate } from "react-router-dom"
 import { z } from "zod"
 
 const formSchema = z.object({
-  verificationCode: z.string().min(6, {
-    message: "Your one-time password must be 6 characters.",
-  }),
+  email: z.string().email("Invalid email address"),
 })
 
 const VerifyEmailModal = () => {
-  const navigate = useNavigate()
-  const verifyEmailMutation = useMutation({
-    mutationFn: authService.authVerifyEmail,
+  const forgotPasswordMutation = useMutation({
+    mutationFn: authService.authForgotPassword,
     onSuccess: () => {
-      toast({
-        description: (
-          <div className="flex items-center justify-center gap-x-2">
-            <CircleCheckBig className="w-5 h-5 text-green-500 " />
-            <span>Reset successfly</span>
-          </div>
-        ),
-      })
-      navigate("/auth/login")
       destroyAllModal()
+      toast({
+        title: "Password reset link sent",
+        description:
+          "We have sent a password reset link to your email address. Please check your inbox and follow the instructions to reset your password.",
+      })
     },
   })
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      verificationCode: "",
+      email: "",
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    verifyEmailMutation.mutate(values)
+    forgotPasswordMutation.mutate(values)
+  }
+
+  function onOpenChange(open: boolean) {
+    if (!open) {
+      destroyAllModal()
+    }
   }
 
   return (
-    <Dialog open={true}>
+    <Dialog
+      onOpenChange={onOpenChange}
+      open={true}
+    >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Verify Email</DialogTitle>
+          <DialogTitle>Forgot Password</DialogTitle>
           <DialogDescription>
-            Please enter the 6-digit code sent to your email.
+            Please enter your email address to receive a password reset link.
           </DialogDescription>
         </DialogHeader>
         <div>
           <Form {...form}>
             <form
-              className="grid grid-cols-1 items-center justify-center space-y-6"
               onSubmit={form.handleSubmit(onSubmit)}
+              className="grid gap-4"
             >
               <FormField
                 control={form.control}
-                name="verificationCode"
+                name="email"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col items-center justify-center">
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <InputOTP
+                      <Input
+                        placeholder="johndoe@example.com"
                         {...field}
-                        maxLength={6}
-                      >
-                        <InputOTPGroup>
-                          <InputOTPSlot index={0} />
-                          <InputOTPSlot index={1} />
-                          <InputOTPSlot index={2} />
-                        </InputOTPGroup>
-                        <InputOTPSeparator />
-                        <InputOTPGroup>
-                          <InputOTPSlot index={3} />
-                          <InputOTPSlot index={4} />
-                          <InputOTPSlot index={5} />
-                        </InputOTPGroup>
-                      </InputOTP>
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <DialogFooter>
                 <Button
-                  disabled={verifyEmailMutation.isPending}
+                  disabled={forgotPasswordMutation.isPending}
                   variant="animated"
                   type="submit"
                 >
-                  {verifyEmailMutation.isPending ? (
+                  {forgotPasswordMutation.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin mx-auto" />
                   ) : (
-                    "Verify Email"
+                    "Send"
                   )}
                   <BottomGradient />
                 </Button>

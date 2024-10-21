@@ -1,5 +1,5 @@
 import BottomGradient from "@/components/bottom-gradient"
-import Spinner from "@/components/loading"
+import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -15,7 +15,6 @@ import { createModal } from "@/stores/store-actions/modal-action"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
-import { useNavigate } from "react-router-dom"
 import { z } from "zod"
 
 const formSchema = z.object({
@@ -39,12 +38,11 @@ const formSchema = z.object({
 })
 
 const SignupForm = () => {
-  const navigate = useNavigate()
   const signupMutation = useMutation({
     mutationFn: authService.authSignup,
 
     onSuccess: () => {
-      navigate("/auth/verify-email")
+      createModal({ name: "verify-email" })
     },
   })
 
@@ -59,10 +57,7 @@ const SignupForm = () => {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     signupMutation.mutate(values)
-    createModal("verify-email")
   }
-
-  if (signupMutation.isPending) return <Spinner />
 
   return (
     <Form {...form}>
@@ -122,10 +117,15 @@ const SignupForm = () => {
         />
 
         <Button
+          disabled={signupMutation.isPending}
           variant="animated"
           type="submit"
         >
-          Sign Up
+          {signupMutation.isPending ? (
+            <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+          ) : (
+            "Sign up"
+          )}
           <BottomGradient />
         </Button>
       </form>

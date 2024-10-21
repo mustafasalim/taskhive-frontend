@@ -2,8 +2,8 @@ import type { RouteObject } from "react-router-dom"
 import AuthLayouth from "@/layouts/auth"
 import Login from "@/pages/auth/login"
 import Signup from "@/pages/auth/signup"
-import VerifyEmail from "@/pages/auth/verify-email"
 import AuthProvider from "@/providers/auth-provider"
+import ResetPassword from "@/pages/auth/reset-password"
 
 export const authRoutes: RouteObject = {
   path: "/auth",
@@ -23,8 +23,8 @@ export const authRoutes: RouteObject = {
       element: <Login />,
     },
     {
-      path: "verify-email",
-      element: <VerifyEmail />,
+      path: "reset-password/:token",
+      element: <ResetPassword />,
     },
   ],
 }

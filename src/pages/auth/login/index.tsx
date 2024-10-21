@@ -9,9 +9,14 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import LoginForm from "./form"
+import { createModal } from "@/stores/store-actions/modal-action"
 
 const Login = () => {
   const { theme } = useTheme()
+
+  function handleClickForgotPassword() {
+    createModal({ name: "forgot-password" })
+  }
 
   return (
     <>
@@ -37,6 +42,16 @@ const Login = () => {
           >
             Sign up
           </Link>
+          <div>
+            Forgot your
+            <span
+              className="underline cursor-pointer"
+              onClick={handleClickForgotPassword}
+            >
+              Password
+            </span>
+            ?
+          </div>
         </div>
       </CardContent>
     </>
