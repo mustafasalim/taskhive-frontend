@@ -1,9 +1,14 @@
 export const saveAccessTokenToLocalStorage = (accessToken: string) => {
-  localStorage.setItem("accessToken", accessToken)
+  if (typeof accessToken === "string" && accessToken.trim() !== "") {
+    localStorage.setItem("accessToken", accessToken)
+  }
 }
 
 export const getAccessTokenFromLocalStorage = () => {
-  return localStorage.getItem("accessToken")
+  const token = localStorage.getItem("accessToken")
+  console.log(token)
+
+  return token
 }
 
 export const removeAccessTokenFromLocalStorage = () => {

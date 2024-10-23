@@ -15,18 +15,13 @@ const AuthProvider = ({ children }: Props) => {
     const token = getAccessTokenFromLocalStorage()
 
     if (token) {
-      // If token exists, redirect from login/signup to dashboard
       if (
         location.pathname.includes("/auth/login") ||
         location.pathname.includes("/auth/signup")
       ) {
         navigate("/dashboard")
-      } else if (!location.pathname.includes("/dashboard")) {
-        // If token exists but not on dashboard, redirect to dashboard
-        navigate("/dashboard")
       }
     } else {
-      // If no token and trying to access dashboard, redirect to login
       if (location.pathname.includes("/dashboard")) {
         navigate("/auth/login")
       }

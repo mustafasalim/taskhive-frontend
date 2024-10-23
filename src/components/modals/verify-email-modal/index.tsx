@@ -46,7 +46,7 @@ const VerifyEmailModal = () => {
         description: (
           <div className="flex items-center justify-center gap-x-2">
             <CircleCheckBig className="w-5 h-5 text-green-500 " />
-            <span>Reset successfly</span>
+            <span>Verify successfly</span>
           </div>
         ),
       })

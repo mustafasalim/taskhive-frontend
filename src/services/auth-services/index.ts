@@ -1,3 +1,4 @@
+import { removeAccessTokenFromLocalStorage } from "@/lib/hooks/use-access-token"
 import api from "../api"
 import {
   IAuthForgotPassword,
@@ -35,5 +36,9 @@ export const authService = {
       password,
     })
     return response.data
+  },
+  authLogout: async () => {
+    const response = removeAccessTokenFromLocalStorage()
+    return response
   },
 }

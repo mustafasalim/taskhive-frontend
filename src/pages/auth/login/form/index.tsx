@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import BottomGradient from "@/components/bottom-gradient"
 import { Button } from "@/components/ui/button"
 import {
@@ -9,6 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { toast } from "@/hooks/use-toast"
 import { saveAccessTokenToLocalStorage } from "@/lib/hooks/use-access-token"
 import useUser from "@/lib/hooks/use-user"
 import { authService } from "@/services/auth-services"
@@ -41,11 +43,19 @@ const LoginForm = () => {
     mutationFn: authService.authLogin,
     onSuccess: (data) => {
       saveAccessTokenToLocalStorage(data.token)
+
       setUser({
         name: data.user.name,
         email: data.user.email,
       })
       navigate("/dashboard")
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.response.data.message,
+        variant: "destructive",
+      })
     },
   })
 
@@ -60,6 +70,7 @@ const LoginForm = () => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     loginMutation.mutate(values)
   }
+
   return (
     <Form {...form}>
       <form
