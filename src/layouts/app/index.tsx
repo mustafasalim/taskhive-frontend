@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { getAccessTokenFromLocalStorage } from "@/lib/hooks/use-access-token"
 import AppProvider from "@/providers/app-provider"
+
 import { useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
@@ -9,19 +10,20 @@ const AppLayout = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (location.pathname === "/") {
-      if (getAccessTokenFromLocalStorage()) {
-        navigate("/dashboard")
-      } else {
+    const checkAuthentication = () => {
+      const accessToken = getAccessTokenFromLocalStorage()
+
+      if (!accessToken) {
         navigate("/auth/login")
+      } else if (location.pathname === "/") {
+        navigate("/dashboard")
       }
     }
+
+    checkAuthentication()
   }, [location.pathname])
-  return (
-    <>
-      <AppProvider />
-    </>
-  )
+
+  return <AppProvider />
 }
 
 export default AppLayout

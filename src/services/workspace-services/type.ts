@@ -11,9 +11,9 @@ export interface IWorkspaceMember {
 export interface IWorkspace {
   _id: string
   name: string
+  currentUserRole: string
   description: string
   owner: string
-  members: IWorkspaceMember[]
   createdAt: Date
   updatedAt: Date
 }

@@ -3,6 +3,7 @@ import { useLocalStorage } from "react-use"
 interface GetUserDetailsDto {
   email: string // User's email
   name: string // User's name
+  id: string
 }
 
 interface ReturnTypes {

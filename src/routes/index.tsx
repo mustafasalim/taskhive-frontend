@@ -3,6 +3,7 @@ import { authRoutes } from "./auth-routes"
 import { dashboardRoutes } from "./dashboard-routes"
 import AppLayout from "@/layouts/app"
 import AuthProvider from "@/providers/auth-provider"
+import CreateOrJoinPage from "@/pages/create-or-join"
 
 const router = createBrowserRouter([
   {
@@ -12,7 +13,11 @@ const router = createBrowserRouter([
         <AppLayout />
       </AuthProvider>
     ),
-    children: [authRoutes, dashboardRoutes],
+    children: [
+      authRoutes,
+      dashboardRoutes,
+      { path: "create-join", element: <CreateOrJoinPage /> },
+    ],
   },
 ])
 

@@ -20,6 +20,7 @@ const AuthProvider = ({ children }: Props) => {
         location.pathname.includes("/auth/signup")
       ) {
         navigate("/dashboard")
+        window.location.reload()
       }
     } else {
       if (location.pathname.includes("/dashboard")) {

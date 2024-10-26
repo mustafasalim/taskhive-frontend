@@ -1,6 +1,7 @@
 import useModalStore from "@/stores/modal-slice"
 import VerifyEmailModal from "./verify-email-modal"
 import ForgotPasswordModal from "./forgot-password"
+import InviteWorkspaceModal from "./invite-workspace"
 
 const modalData = [
   {
@@ -10,6 +11,10 @@ const modalData = [
   {
     name: "forgot-password",
     element: ForgotPasswordModal,
+  },
+  {
+    name: "invite-workspace",
+    element: InviteWorkspaceModal,
   },
 ]
 
@@ -23,7 +28,12 @@ const Modal = () => {
 
         if (modalElement) {
           const Modal = modalElement.element
-          return <Modal key={modal.id} />
+          return (
+            <Modal
+              data={modal.data}
+              key={modal.id}
+            />
+          )
         }
       })}
     </>

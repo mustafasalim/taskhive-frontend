@@ -36,7 +36,7 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // Handle unauthorized access (e.g., redirect to login)
       removeAccessTokenFromLocalStorage()
-      window.location.href = "/login"
+      window.location.href = "/auth/login"
     }
     return Promise.reject(error)
   }

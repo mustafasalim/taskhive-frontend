@@ -7,7 +7,7 @@ export const invitationServices = {
     return response.data
   },
   joinWorkspace: async (token: IJoinWorkspace) => {
-    const response = await api.post(`/invitation/join-workspace`, token)
+    const response = await api.post(`/invitation/join`, token)
     return response.data
   },
 }

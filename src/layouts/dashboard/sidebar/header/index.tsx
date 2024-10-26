@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,26 +13,40 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import queries from "@/queries"
 import { workspaceServices } from "@/services/workspace-services"
 import { IWorkspace } from "@/services/workspace-services/type"
-import { useQuery } from "@tanstack/react-query"
+import { useWorkspaceStore } from "@/stores/workspace-slice"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { ChevronsUpDown, Plus } from "lucide-react"
-
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
+import { Link, useNavigate } from "react-router-dom"
 
 const DashbordSidebarHeader = () => {
-  const { data } = useQuery({
-    queryKey: [""],
-    queryFn: workspaceServices.getWorkspaces,
+  const { activeWorkspace, setActiveWorkspace } = useWorkspaceStore()
+  const { data: workspaces } = useQuery(queries.workspaces.getWorkspaces)
+  const navigate = useNavigate()
+
+  const getActiveWorkspaceMutation = useMutation({
+    mutationFn: workspaceServices.getActiveWorkspaces,
+    onSuccess: (data) => {
+      setActiveWorkspace(data)
+    },
   })
 
-  const [activeTeam, setActiveTeam] = useState<IWorkspace>()
+  function handleClickGetActiveWorkspace(workspace: IWorkspace) {
+    getActiveWorkspaceMutation.mutate(workspace?._id)
+  }
 
   useEffect(() => {
-    if (data && data.length > 0) {
-      setActiveTeam(data[0])
+    if (workspaces && workspaces.length > 0) {
+      getActiveWorkspaceMutation.mutate(
+        (activeWorkspace?._id as string) || (workspaces[0]?._id as string)
+      )
+    } else {
+      navigate("/dashboard")
     }
-  }, [data])
+  }, [workspaces])
 
   return (
     <SidebarMenu>
@@ -45,13 +60,13 @@ const DashbordSidebarHeader = () => {
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg  text-sidebar-primary-foreground">
                 <img
                   className="w-10 h-10"
-                  src={`https://api.dicebear.com/9.x/identicon/svg?seed=${activeTeam?.name}`}
+                  src={`https://api.dicebear.com/9.x/identicon/svg?seed=${activeWorkspace?.name}`}
                   alt=""
                 />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">
-                  {activeTeam?.name}
+                  {activeWorkspace?.name}
                 </span>
                 <span>new</span>
               </div>
@@ -67,11 +82,11 @@ const DashbordSidebarHeader = () => {
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               Teams
             </DropdownMenuLabel>
-            {data &&
-              data.map((team: IWorkspace, index: number) => (
+            {workspaces &&
+              workspaces.map((team: IWorkspace, index: number) => (
                 <DropdownMenuItem
                   key={team.name}
-                  onClick={() => setActiveTeam(team)}
+                  onClick={() => handleClickGetActiveWorkspace(team)}
                   className="gap-2 p-2"
                 >
                   <div className="flex size-6 items-center justify-center rounded-sm border">
@@ -91,7 +106,11 @@ const DashbordSidebarHeader = () => {
               <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                 <Plus className="size-4" />
               </div>
-              <div className="font-medium text-muted-foreground">Add team</div>
+              <Link to="/create-join">
+                <div className="font-medium text-muted-foreground">
+                  Add team
+                </div>
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
