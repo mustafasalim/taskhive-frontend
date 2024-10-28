@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { projectServices } from "@/services/project-services"
+import { useWorkspaceStore } from "@/stores/workspace-slice"
 import { useMutation } from "@tanstack/react-query"
 import { Plus } from "lucide-react"
 
 const ProjectsPageHeaderActions = () => {
+  const { activeWorkspace } = useWorkspaceStore()
   const createProjectMutation = useMutation({
     mutationFn: projectServices.createProject,
   })
@@ -17,13 +19,17 @@ const ProjectsPageHeaderActions = () => {
   }
   return (
     <div>
-      <Button
-        onClick={handleClickCreateProject}
-        variant="ghost"
-      >
-        <Plus className="mx-auto h-4 w-4" />
-        create project
-      </Button>
+      {(activeWorkspace?.currentUserRole === "admin" ||
+        activeWorkspace?.currentUserRole === "operator") && (
+        <Button
+          onClick={handleClickCreateProject}
+          variant="ghost"
+          size="sm"
+        >
+          <Plus className="mx-auto h-4 w-4" />
+          create project
+        </Button>
+      )}
     </div>
   )
 }

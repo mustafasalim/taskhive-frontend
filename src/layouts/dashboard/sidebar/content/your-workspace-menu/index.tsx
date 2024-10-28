@@ -35,8 +35,23 @@ const YourWorkspaceMenu = () => {
     },
   })
 
+  const leaveWorkspaceMuation = useMutation({
+    mutationFn: workspaceServices.leaveWorkspace,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queries.workspaces.getWorkspaces.queryKey,
+      })
+      setActiveWorkspace(null)
+      window.location.reload()
+    },
+  })
+
   function handleSelectDeleteProject() {
     deleteWorkspaceMutation.mutate(activeWorkspace?._id as string)
+  }
+
+  function handleSelectLeaveProject() {
+    leaveWorkspaceMuation.mutate(activeWorkspace?._id as string)
   }
 
   function handleSelectIviteProject() {
@@ -79,16 +94,28 @@ const YourWorkspaceMenu = () => {
                   <Folder className="text-muted-foreground" />
                   <span>View Project</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={handleSelectIviteProject}>
-                  <Forward className="text-muted-foreground" />
-                  <span>Invite Project</span>
-                </DropdownMenuItem>
+                {activeWorkspace?.currentUserRole === "admin" && (
+                  <DropdownMenuItem onSelect={handleSelectIviteProject}>
+                    <Forward className="text-muted-foreground" />
+                    <span>Invite Project</span>
+                  </DropdownMenuItem>
+                )}
                 {activeWorkspace?.currentUserRole === "admin" && (
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSelectDeleteProject}>
                       <Trash2 className="text-muted-foreground" />
                       <span>Delete Project</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                {(activeWorkspace?.currentUserRole === "member" ||
+                  activeWorkspace?.currentUserRole === "operator") && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSelectLeaveProject}>
+                      <Trash2 className="text-muted-foreground" />
+                      <span>Leave Project</span>
                     </DropdownMenuItem>
                   </>
                 )}

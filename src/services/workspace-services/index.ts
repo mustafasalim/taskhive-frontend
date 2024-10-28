@@ -14,6 +14,10 @@ export const workspaceServices = {
     const response = await api.get(`/workspaces/${id}`)
     return response.data
   },
+  leaveWorkspace: async (id: string) => {
+    const response = await api.delete(`/workspaces/leave/${id}`)
+    return response.data
+  },
   deleteWorkspace: async (id: string) => {
     const response = await api.delete(`/workspaces/${id}`)
     return response.data

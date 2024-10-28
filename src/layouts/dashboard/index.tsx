@@ -4,22 +4,9 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import DashbordLayoutSidebar from "./sidebar"
-import { Outlet, useNavigate } from "react-router-dom"
-import { useEffect } from "react"
-import { useQuery } from "@tanstack/react-query"
-import queries from "@/queries"
+import { Outlet } from "react-router-dom"
 
 const DashboardLayout = () => {
-  const { data } = useQuery(queries.workspaces.getWorkspaces)
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    if (data && data.length > 0) {
-      navigate("/dashboard")
-    } else {
-      navigate("/create-join")
-    }
-  }, [data, navigate])
   return (
     <SidebarProvider>
       <DashbordLayoutSidebar />
@@ -30,7 +17,7 @@ const DashboardLayout = () => {
           </div>
         </header>
         <div className="w-full h-full flex flex-col gap-4 p-4 pt-0">
-          <div className="min-h-[100vh] flex-1 rounded-xl bg-secondary dark:bg-secondary/50 md:min-h-min">
+          <div className="min-h-[100vh] border  flex-1 rounded-sm bg-white/10 dark:bg-secondary/50 md:min-h-min">
             <Outlet />
           </div>
         </div>

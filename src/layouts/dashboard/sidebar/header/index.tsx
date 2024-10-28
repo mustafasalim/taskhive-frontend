@@ -108,7 +108,7 @@ const DashbordSidebarHeader = () => {
               </div>
               <Link to="/create-join">
                 <div className="font-medium text-muted-foreground">
-                  Add team
+                  Create or join a team
                 </div>
               </Link>
             </DropdownMenuItem>

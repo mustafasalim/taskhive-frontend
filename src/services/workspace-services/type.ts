@@ -11,7 +11,7 @@ export interface IWorkspaceMember {
 export interface IWorkspace {
   _id: string
   name: string
-  currentUserRole: string
+  currentUserRole: "admin" | "operator" | "member"
   description: string
   owner: string
   createdAt: Date
