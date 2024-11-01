@@ -3,17 +3,20 @@ export interface ICreateWorkspace {
   description: string
 }
 
-export interface IWorkspaceMember {
-  user: string // ObjectId type for MongoDB, but you can also use string
-  role: "admin" | "operator" | "member"
-}
-
 export interface IWorkspace {
+  name: string
+  owner: {
+    _id: string
+    name: string
+  }
+}
+export interface IActiveWorkspaces {
   _id: string
   name: string
   currentUserRole: "admin" | "operator" | "member"
   description: string
   owner: string
+  members: string[] | undefined
   createdAt: Date
   updatedAt: Date
 }

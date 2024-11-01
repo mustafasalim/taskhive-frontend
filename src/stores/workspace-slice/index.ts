@@ -1,9 +1,9 @@
 import { create } from "zustand"
-import { IWorkspace } from "@/services/workspace-services/type"
+import { IActiveWorkspaces } from "@/services/workspace-services/type"
 
 interface WorkspaceState {
-  activeWorkspace: IWorkspace | null
-  setActiveWorkspace: (workspace: IWorkspace | null) => void
+  activeWorkspace: IActiveWorkspaces | null
+  setActiveWorkspace: (workspace: IActiveWorkspaces | null) => void
 }
 
 export const useWorkspaceStore = create<WorkspaceState>((set) => ({

@@ -14,4 +14,10 @@ export const projectServices = {
     const response = await api.get(`/projects/${id}`)
     return response.data
   },
+  addMembersToProject: async (projectId: string, members: string[]) => {
+    const response = await api.post(`/projects/${projectId}/members`, {
+      members,
+    })
+    return response.data
+  },
 }

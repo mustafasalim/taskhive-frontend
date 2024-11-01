@@ -16,8 +16,9 @@ const DashboardLayout = () => {
             <SidebarTrigger className="-ml-1" />
           </div>
         </header>
+
         <div className="w-full h-full flex flex-col gap-4 p-4 pt-0">
-          <div className="min-h-[100vh] border  flex-1 rounded-sm bg-white/10 dark:bg-secondary/50 md:min-h-min">
+          <div className="min-h-[100vh] border flex-1 rounded-sm bg-white/10 dark:bg-secondary/50 md:min-h-min">
             <Outlet />
           </div>
         </div>

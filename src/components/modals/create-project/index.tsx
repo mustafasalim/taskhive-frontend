@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import BottomGradient from "@/components/bottom-gradient"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,41 +18,44 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { toast } from "@/hooks/use-toast"
-import { authService } from "@/services/auth-services"
+import { projectServices } from "@/services/project-services"
 import { destroyAllModal } from "@/stores/store-actions/modal-action"
+import { useWorkspaceStore } from "@/stores/workspace-slice"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
+import { Loader2, Smile } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  name: z.string(),
+  description: z.string(),
 })
 
-const ForgotPasswordModal = () => {
-  const forgotPasswordMutation = useMutation({
-    mutationFn: authService.authForgotPassword,
+const CreateProjectModal = ({ data }: any) => {
+  const { activeWorkspace } = useWorkspaceStore()
+
+  const createProjectMutation = useMutation({
+    mutationFn: projectServices.createProject,
     onSuccess: () => {
       destroyAllModal()
-      toast({
-        title: "Password reset link sent",
-        description:
-          "We have sent a password reset link to your email address. Please check your inbox and follow the instructions to reset your password.",
-      })
     },
   })
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      name: "",
+      description: "",
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    forgotPasswordMutation.mutate(values)
+    createProjectMutation.mutate({
+      ...values,
+      workspaceId: data,
+      members: activeWorkspace?.members,
+    })
   }
 
   function onOpenChange(open: boolean) {
@@ -67,10 +71,8 @@ const ForgotPasswordModal = () => {
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Forgot Password</DialogTitle>
-          <DialogDescription>
-            Please enter your email address to receive a password reset link.
-          </DialogDescription>
+          <DialogTitle>Create Project</DialogTitle>
+          <DialogDescription></DialogDescription>
         </DialogHeader>
         <div>
           <Form {...form}>
@@ -80,15 +82,30 @@ const ForgotPasswordModal = () => {
             >
               <FormField
                 control={form.control}
-                name="email"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Project name</FormLabel>
+                      <Smile className="h-4 w-4 text-zinc-600 dark:text-white/70 cursor-pointer" />
+                    </div>
                     <FormControl>
-                      <Input
-                        placeholder="johndoe@example.com"
-                        {...field}
-                      />
+                      <Input {...field} />
+                    </FormControl>
+
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Project Description</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -97,11 +114,11 @@ const ForgotPasswordModal = () => {
 
               <DialogFooter>
                 <Button
-                  disabled={forgotPasswordMutation.isPending}
+                  disabled={createProjectMutation.isPending}
                   variant="animated"
                   type="submit"
                 >
-                  {forgotPasswordMutation.isPending ? (
+                  {createProjectMutation.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin mx-auto" />
                   ) : (
                     "Send"
@@ -117,4 +134,4 @@ const ForgotPasswordModal = () => {
   )
 }
 
-export default ForgotPasswordModal
+export default CreateProjectModal

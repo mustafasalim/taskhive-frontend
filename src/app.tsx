@@ -7,7 +7,7 @@ function App() {
   return (
     <ReactQueryProvider>
       <ThemeProvider
-        defaultTheme="light"
+        defaultTheme="dark"
         storageKey="vite-ui-theme"
       >
         <RouterProvider router={router} />

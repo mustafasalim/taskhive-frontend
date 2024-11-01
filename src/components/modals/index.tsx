@@ -1,7 +1,8 @@
 import useModalStore from "@/stores/modal-slice"
-import VerifyEmailModal from "./verify-email-modal"
+import VerifyEmailModal from "./verify-email"
 import ForgotPasswordModal from "./forgot-password"
 import InviteWorkspaceModal from "./invite-workspace"
+import CreateProjectModal from "./create-project"
 
 const modalData = [
   {
@@ -15,6 +16,10 @@ const modalData = [
   {
     name: "invite-workspace",
     element: InviteWorkspaceModal,
+  },
+  {
+    name: "create-project",
+    element: CreateProjectModal,
   },
 ]
 
