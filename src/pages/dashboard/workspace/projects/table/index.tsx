@@ -14,53 +14,84 @@ import {
 
 import { columns } from "./columns"
 import { IProject } from "@/services/project-services/type"
+import { useEffect, useState } from "react"
+import { useWorkspaceStore } from "@/stores/workspace-slice"
+import { useMutation } from "@tanstack/react-query"
+import { projectServices } from "@/services/project-services"
 
-interface IProjectTable {
-  data: IProject[]
-}
+const ProjectsTable = () => {
+  const [projectData, setProjectData] = useState<IProject[]>([])
+  const { activeWorkspace } = useWorkspaceStore()
 
-const ProjectsTable = (props: IProjectTable) => {
-  const { data } = props
+  const getProjectByWorkspaceMutation = useMutation({
+    mutationFn: projectServices.getProjectsByWorkspace,
+    onSuccess: (data) => {
+      setProjectData(data)
+    },
+  })
+
+  useEffect(() => {
+    if (activeWorkspace) {
+      getProjectByWorkspaceMutation.mutate(activeWorkspace?._id as string)
+    }
+  }, [])
+
   const table = useReactTable({
     columns,
-    data,
+    data: projectData,
+    enableColumnResizing: true,
     getCoreRowModel: getCoreRowModel(),
   })
 
   return (
-    <div className="px-3 py-1">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {table
-              .getHeaderGroups()
-              .map((headerGroup) =>
-                headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))
-              )}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
+    <Table className="text-xs text-black dark:text-zinc-200">
+      <TableHeader>
+        <TableRow>
+          {table.getHeaderGroups().map((headerGroup) =>
+            headerGroup.headers.map((header) => (
+              <TableHead
+                style={{
+                  width: header.getSize(),
+                }}
+                key={header.id}
+              >
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+              </TableHead>
+            ))
+          )}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {table.getRowModel().rows.map((row) => (
+          <>
             <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  <div className="cursor-pointer">
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </div>
                 </TableCell>
               ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+            {getProjectByWorkspaceMutation.isPending && (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  Loading...
+                </TableCell>
+              </TableRow>
+            )}
+          </>
+        ))}
+      </TableBody>
+    </Table>
   )
 }
 

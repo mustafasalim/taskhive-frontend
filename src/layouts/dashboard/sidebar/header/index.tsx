@@ -60,7 +60,7 @@ const DashbordSidebarHeader = () => {
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg  text-sidebar-primary-foreground">
                 <img
                   className="w-10 h-10"
-                  src={`https://api.dicebear.com/9.x/identicon/svg?seed=${activeWorkspace?.name}`}
+                  src={`https://api.dicebear.com/9.x/rings/svg?seed=${activeWorkspace?.name}`}
                   alt=""
                 />
               </div>
@@ -91,7 +91,7 @@ const DashbordSidebarHeader = () => {
                 >
                   <div className="flex size-6 items-center justify-center rounded-sm border">
                     <img
-                      src={`https://api.dicebear.com/9.x/identicon/svg?seed=${team.name}`}
+                      src={`https://api.dicebear.com/9.x/rings/svg?seed=${team.name}`}
                       className="size-4 shrink-0"
                       alt=""
                     />

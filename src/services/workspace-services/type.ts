@@ -4,6 +4,7 @@ export interface ICreateWorkspace {
 }
 
 export interface IWorkspace {
+  _id: string
   name: string
   owner: {
     _id: string

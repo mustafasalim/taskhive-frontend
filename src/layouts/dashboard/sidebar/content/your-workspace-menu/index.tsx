@@ -71,7 +71,7 @@ const YourWorkspaceMenu = () => {
               <a>
                 <img
                   className="w-5 h-5"
-                  src={`https://api.dicebear.com/9.x/identicon/svg?seed=${activeWorkspace?.name}`}
+                  src={`https://api.dicebear.com/9.x/rings/svg?seed=${activeWorkspace?.name}`}
                   alt=""
                 />
 
