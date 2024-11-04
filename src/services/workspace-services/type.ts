@@ -11,6 +11,13 @@ export interface IWorkspace {
     name: string
   }
 }
+
+export interface IWorkspaceMember {
+  _id: string
+  name: string
+  email: string
+  role: "admin" | "operator" | "member"
+}
 export interface IActiveWorkspaces {
   _id: string
   name: string

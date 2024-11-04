@@ -83,23 +83,25 @@ export const columns: ColumnDef<IProject>[] = [
     cell: ({ getValue }: any) => (
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <AvatarGroup names={getValue()} />
+          <AvatarGroup names={getValue().map((member: any) => member.name)} />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           <DropdownMenuLabel>Members</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {getValue().map((member: string) => (
-            <DropdownMenuItem key={member}>
-              <div className="flex items-center gap-x-2 ">
-                <Avatar className="h-6 w-6">
-                  <AvatarImage
-                    src={`https://api.dicebear.com/9.x/initials/svg?seed=${member}`}
-                  />
-                </Avatar>
-                {member}
-              </div>
-            </DropdownMenuItem>
-          ))}
+          {getValue().map((member: any) => {
+            return (
+              <DropdownMenuItem key={member.id}>
+                <div className="flex items-center gap-x-2 ">
+                  <Avatar className="h-6 w-6">
+                    <AvatarImage
+                      src={`https://api.dicebear.com/9.x/initials/svg?seed=${member.name}`}
+                    />
+                  </Avatar>
+                  {member.name}
+                </div>
+              </DropdownMenuItem>
+            )
+          })}
         </DropdownMenuContent>
       </DropdownMenu>
     ),

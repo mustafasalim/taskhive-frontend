@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import BottomGradient from "@/components/bottom-gradient"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,56 +18,47 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { toast } from "@/hooks/use-toast"
+import { MultiSelect } from "@/components/ui/multi-select"
 import queries from "@/queries"
-import { authService } from "@/services/auth-services"
 import { destroyAllModal } from "@/stores/store-actions/modal-action"
 import { useWorkspaceStore } from "@/stores/workspace-slice"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation, useQuery } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
-import { useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 const formSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  title: z.string().optional(),
+  description: z.string().optional(),
+  members: z.array(z.string()).optional(),
 })
 
-const EditProjectModal = () => {
+const EditProjectModal = ({ data }: any) => {
   const { activeWorkspace } = useWorkspaceStore()
 
-  const { data, refetch } = useQuery({
+  const { data: membersData = [] } = useQuery({
     ...queries.workspaces.getWorkspaceMembers(activeWorkspace?._id as string),
+    enabled: !!activeWorkspace?._id,
   })
 
-  useEffect(() => {
-    refetch()
-  }, [])
-
-  console.log(data)
-
-  const forgotPasswordMutation = useMutation({
-    mutationFn: authService.authForgotPassword,
-    onSuccess: () => {
-      destroyAllModal()
-      toast({
-        title: "Password reset link sent",
-        description:
-          "We have sent a password reset link to your email address. Please check your inbox and follow the instructions to reset your password.",
-      })
-    },
-  })
+  const defaultMembersValue = data.members.map((member: any) => member.id)
+  const membersOptions =
+    membersData?.map((member: any) => ({
+      value: member.id,
+      label: member.name,
+    })) || []
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      title: data?.name,
+      description: data?.description,
+      members: defaultMembersValue,
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    forgotPasswordMutation.mutate(values)
+    console.log(values)
   }
 
   function onOpenChange(open: boolean) {
@@ -82,9 +74,9 @@ const EditProjectModal = () => {
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Forgot Password</DialogTitle>
+          <DialogTitle>Edit Project</DialogTitle>
           <DialogDescription>
-            Please enter your email address to receive a password reset link.
+            Update the project details and assign members as needed.
           </DialogDescription>
         </DialogHeader>
         <div>
@@ -95,32 +87,54 @@ const EditProjectModal = () => {
             >
               <FormField
                 control={form.control}
-                name="email"
+                name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Title</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="johndoe@example.com"
-                        {...field}
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="members"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Members</FormLabel>
+                    <FormControl>
+                      <MultiSelect
+                        options={membersOptions}
+                        defaultValue={field.value}
+                        placeholder="Select members"
+                        onValueChange={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <DialogFooter>
                 <Button
-                  disabled={forgotPasswordMutation.isPending}
                   variant="animated"
                   type="submit"
                 >
-                  {forgotPasswordMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                  ) : (
-                    "Send"
-                  )}
+                  Save Changes
                   <BottomGradient />
                 </Button>
               </DialogFooter>
