@@ -6,6 +6,10 @@ const workspaces = createQueryKeys("workspaces", {
     queryKey: [""],
     queryFn: workspaceServices.getWorkspaces,
   },
+  getWorkspaceMembers: (workspaceId: string) => ({
+    queryKey: [""],
+    queryFn: () => workspaceServices.getWorkspaceMembers(workspaceId),
+  }),
 })
 
 export default workspaces

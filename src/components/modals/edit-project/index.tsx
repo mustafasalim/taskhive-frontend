@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import BottomGradient from "@/components/bottom-gradient"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,50 +17,56 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { queryClient } from "@/providers/react-query-provider"
+import { toast } from "@/hooks/use-toast"
 import queries from "@/queries"
-import { projectServices } from "@/services/project-services"
+import { authService } from "@/services/auth-services"
 import { destroyAllModal } from "@/stores/store-actions/modal-action"
 import { useWorkspaceStore } from "@/stores/workspace-slice"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@tanstack/react-query"
-import { Loader2, Smile } from "lucide-react"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { Loader2 } from "lucide-react"
+import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 const formSchema = z.object({
-  name: z.string(),
-  description: z.string(),
+  email: z.string().email("Invalid email address"),
 })
 
-const CreateProjectModal = ({ data }: any) => {
+const EditProjectModal = () => {
   const { activeWorkspace } = useWorkspaceStore()
 
-  const createProjectMutation = useMutation({
-    mutationFn: projectServices.createProject,
+  const { data, refetch } = useQuery({
+    ...queries.workspaces.getWorkspaceMembers(activeWorkspace?._id as string),
+  })
+
+  useEffect(() => {
+    refetch()
+  }, [])
+
+  console.log(data)
+
+  const forgotPasswordMutation = useMutation({
+    mutationFn: authService.authForgotPassword,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queries.projects.getProjects(activeWorkspace?._id as string)
-          .queryKey,
-      })
       destroyAllModal()
+      toast({
+        title: "Password reset link sent",
+        description:
+          "We have sent a password reset link to your email address. Please check your inbox and follow the instructions to reset your password.",
+      })
     },
   })
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      description: "",
+      email: "",
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    createProjectMutation.mutate({
-      ...values,
-      workspaceId: data,
-      members: activeWorkspace?.members,
-    })
+    forgotPasswordMutation.mutate(values)
   }
 
   function onOpenChange(open: boolean) {
@@ -77,8 +82,10 @@ const CreateProjectModal = ({ data }: any) => {
     >
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Project</DialogTitle>
-          <DialogDescription></DialogDescription>
+          <DialogTitle>Forgot Password</DialogTitle>
+          <DialogDescription>
+            Please enter your email address to receive a password reset link.
+          </DialogDescription>
         </DialogHeader>
         <div>
           <Form {...form}>
@@ -88,30 +95,15 @@ const CreateProjectModal = ({ data }: any) => {
             >
               <FormField
                 control={form.control}
-                name="name"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="flex items-center justify-between">
-                      <FormLabel>Project name</FormLabel>
-                      <Smile className="h-4 w-4 text-zinc-600 dark:text-white/70 cursor-pointer" />
-                    </div>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Project Description</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
+                      <Input
+                        placeholder="johndoe@example.com"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -120,11 +112,11 @@ const CreateProjectModal = ({ data }: any) => {
 
               <DialogFooter>
                 <Button
-                  disabled={createProjectMutation.isPending}
+                  disabled={forgotPasswordMutation.isPending}
                   variant="animated"
                   type="submit"
                 >
-                  {createProjectMutation.isPending ? (
+                  {forgotPasswordMutation.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin mx-auto" />
                   ) : (
                     "Send"
@@ -140,4 +132,4 @@ const CreateProjectModal = ({ data }: any) => {
   )
 }
 
-export default CreateProjectModal
+export default EditProjectModal

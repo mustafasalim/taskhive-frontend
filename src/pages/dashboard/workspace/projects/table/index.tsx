@@ -1,6 +1,7 @@
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -13,38 +14,34 @@ import {
 } from "@tanstack/react-table"
 
 import { columns } from "./columns"
-import { IProject } from "@/services/project-services/type"
-import { useEffect, useState } from "react"
 import { useWorkspaceStore } from "@/stores/workspace-slice"
-import { useMutation } from "@tanstack/react-query"
-import { projectServices } from "@/services/project-services"
+import { useQuery } from "@tanstack/react-query"
+
+import queries from "@/queries"
+import { useEffect } from "react"
 
 const ProjectsTable = () => {
-  const [projectData, setProjectData] = useState<IProject[]>([])
   const { activeWorkspace } = useWorkspaceStore()
 
-  const getProjectByWorkspaceMutation = useMutation({
-    mutationFn: projectServices.getProjectsByWorkspace,
-    onSuccess: (data) => {
-      setProjectData(data)
-    },
+  const { data, isLoading, refetch } = useQuery({
+    ...queries.projects.getProjects(activeWorkspace?._id as string),
+    enabled: !!activeWorkspace?._id,
   })
-
-  useEffect(() => {
-    if (activeWorkspace) {
-      getProjectByWorkspaceMutation.mutate(activeWorkspace?._id as string)
-    }
-  }, [])
 
   const table = useReactTable({
     columns,
-    data: projectData,
+    data: data || [],
     enableColumnResizing: true,
     getCoreRowModel: getCoreRowModel(),
   })
 
+  useEffect(() => {
+    refetch()
+  }, [activeWorkspace, refetch])
+
   return (
     <Table className="text-xs text-black dark:text-zinc-200">
+      {data?.length <= 0 && <TableCaption>No projects found.</TableCaption>}
       <TableHeader>
         <TableRow>
           {table.getHeaderGroups().map((headerGroup) =>
@@ -78,7 +75,7 @@ const ProjectsTable = () => {
                 </TableCell>
               ))}
             </TableRow>
-            {getProjectByWorkspaceMutation.isPending && (
+            {isLoading && (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}

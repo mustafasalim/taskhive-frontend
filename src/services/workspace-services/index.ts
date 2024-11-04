@@ -15,7 +15,7 @@ export const workspaceServices = {
     return response.data
   },
   getWorkspaceMembers: async (id: string) => {
-    const response = await api.get(`/members/${id}`)
+    const response = await api.get(`/workspaces/members/${id}`)
     return response.data
   },
   leaveWorkspace: async (id: string) => {

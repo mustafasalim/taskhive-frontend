@@ -13,14 +13,26 @@ import { IProject } from "@/services/project-services/type"
 import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 
-import { EllipsisVertical, SquareUserRound } from "lucide-react"
+import { SquareUserRound } from "lucide-react"
+import ColumnActions from "./column-actions"
 
 export const columns: ColumnDef<IProject>[] = [
   {
     accessorKey: "name",
     header: "Title",
-    enableResizing: false, //disable resizing for just this column
+    enableResizing: false,
     size: 650,
+  },
+  {
+    accessorKey: "workspaceName",
+    header: "Workspaces",
+    size: 150,
+    cell: ({ getValue }: any) => (
+      <div className="flex items-center gap-x-2 ">
+        <SquareUserRound className="w-5 h-5 text-zinc-700 dark:text-zinc-300" />
+        {getValue().slice(0, 3).toUpperCase()}
+      </div>
+    ),
   },
   {
     accessorKey: "description",
@@ -57,17 +69,7 @@ export const columns: ColumnDef<IProject>[] = [
       </div>
     ),
   },
-  {
-    accessorKey: "workspaceName",
-    header: "Workspaces",
-    size: 150,
-    cell: ({ getValue }: any) => (
-      <div className="flex items-center gap-x-2 ">
-        <SquareUserRound className="w-5 h-5" />
-        {getValue().toUpperCase()}
-      </div>
-    ),
-  },
+
   {
     accessorKey: "createdAt",
     header: "Created At",
@@ -107,6 +109,10 @@ export const columns: ColumnDef<IProject>[] = [
     id: "actions",
     header: "Actions",
     size: 50,
-    cell: () => <EllipsisVertical className="w-4 h-4 cursor-pointer " />,
+    cell: ({ row }) => {
+      console.log(row)
+
+      return <ColumnActions row={row.original} />
+    },
   },
 ]

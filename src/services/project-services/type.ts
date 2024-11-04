@@ -12,4 +12,5 @@ export interface IProject {
   ownerName: string
   members: string[]
   createdAt: Date
+  id: string
 }

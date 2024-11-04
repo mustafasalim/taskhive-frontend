@@ -3,6 +3,7 @@ import VerifyEmailModal from "./verify-email"
 import ForgotPasswordModal from "./forgot-password"
 import InviteWorkspaceModal from "./invite-workspace"
 import CreateProjectModal from "./create-project"
+import EditProjectModal from "./edit-project"
 
 const modalData = [
   {
@@ -20,6 +21,10 @@ const modalData = [
   {
     name: "create-project",
     element: CreateProjectModal,
+  },
+  {
+    name: "edit-project",
+    element: EditProjectModal,
   },
 ]
 
