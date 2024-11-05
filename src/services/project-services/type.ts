@@ -14,3 +14,8 @@ export interface IProject {
   createdAt: Date
   id: string
 }
+
+export interface IAddMembersToProject {
+  projectId: string
+  members: string[]
+}

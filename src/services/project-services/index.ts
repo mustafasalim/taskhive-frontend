@@ -1,5 +1,5 @@
 import api from "../api"
-import { ICreateProject } from "./type"
+import { IAddMembersToProject, ICreateProject } from "./type"
 
 export const projectServices = {
   createProject: async (data: ICreateProject) => {
@@ -14,8 +14,9 @@ export const projectServices = {
     const response = await api.get(`/projects/${id}`)
     return response.data
   },
-  addMembersToProject: async (id: string, members: string[]) => {
-    const response = await api.post(`/projects/${id}/members`, {
+  addMembersToProject: async (data: IAddMembersToProject) => {
+    const { members, projectId } = data
+    const response = await api.post(`/projects/${projectId}/members`, {
       members,
     })
     return response.data
