@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import BottomGradient from "@/components/bottom-gradient"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   DropdownMenu,
@@ -24,7 +22,7 @@ import { createModal } from "@/stores/store-actions/modal-action"
 import { useWorkspaceStore } from "@/stores/workspace-slice"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery } from "@tanstack/react-query"
-import { Edit2, EllipsisVertical, LogOut, Trash2, UserCog } from "lucide-react"
+import { Edit2, EllipsisVertical, Trash2, UserCog } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -79,27 +77,13 @@ const ColumnActions = (props: ColumnActionsProps) => {
     },
   })
 
-  const leaveProjectMutation = useMutation({
-    mutationFn: projectServices.leaveProject,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: queries.projects.getProjects(activeWorkspace?._id as string)
-          .queryKey,
-      })
-    },
-  })
-
   function handleDeleteProject() {
     deleteProjectMutation.mutate(row.id)
   }
 
-  function handleLeaveProject() {
-    leaveProjectMutation.mutate(row.id)
-  }
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function handleMembersChange(newValue: any) {
     addMembersToProjectMutation.mutate({
-      members: values.members as [],
+      members: newValue as [],
       projectId: row.id,
     })
   }
@@ -139,10 +123,7 @@ const ColumnActions = (props: ColumnActionsProps) => {
                 <DropdownMenuLabel>Members</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <Form {...form}>
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="grid "
-                  >
+                  <form className="grid ">
                     <FormField
                       control={form.control}
                       name="members"
@@ -163,6 +144,7 @@ const ColumnActions = (props: ColumnActionsProps) => {
                                           (val: any) => val !== member.value
                                         )
                                     field.onChange(newValue)
+                                    handleMembersChange(newValue)
                                   }}
                                 />
                                 <div className="flex items-center gap-x-2 ">
@@ -179,13 +161,6 @@ const ColumnActions = (props: ColumnActionsProps) => {
                         </>
                       )}
                     />
-                    <Button
-                      size="sm"
-                      variant="animated"
-                    >
-                      Save
-                      <BottomGradient />
-                    </Button>
                   </form>
                 </Form>
               </DropdownMenuSubContent>
@@ -201,14 +176,7 @@ const ColumnActions = (props: ColumnActionsProps) => {
               Delete
             </div>
           </DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem onClick={handleLeaveProject}>
-            <div className="flex items-center gap-x-2 ">
-              <LogOut className="w-3 h-3 text-zinc-700 dark:text-zinc-300" />
-              Leave
-            </div>
-          </DropdownMenuItem>
-        )}
+        ) : null}
       </DropdownMenuContent>
     </DropdownMenu>
   )

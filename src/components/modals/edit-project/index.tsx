@@ -18,47 +18,50 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { MultiSelect } from "@/components/ui/multi-select"
+import { queryClient } from "@/providers/react-query-provider"
 import queries from "@/queries"
+
+import { projectServices } from "@/services/project-services"
 import { destroyAllModal } from "@/stores/store-actions/modal-action"
 import { useWorkspaceStore } from "@/stores/workspace-slice"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 const formSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
-  members: z.array(z.string()).optional(),
 })
 
 const EditProjectModal = ({ data }: any) => {
   const { activeWorkspace } = useWorkspaceStore()
-
-  const { data: membersData = [] } = useQuery({
-    ...queries.workspaces.getWorkspaceMembers(activeWorkspace?._id as string),
-    enabled: !!activeWorkspace?._id,
-  })
-
-  const defaultMembersValue = data.members.map((member: any) => member.id)
-  const membersOptions =
-    membersData?.map((member: any) => ({
-      value: member.id,
-      label: member.name,
-    })) || []
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: data?.name,
       description: data?.description,
-      members: defaultMembersValue,
+    },
+  })
+
+  const updateProjectMutation = useMutation({
+    mutationFn: projectServices.updateProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: queries.projects.getProjects(activeWorkspace?._id as string)
+          .queryKey,
+      })
+      destroyAllModal()
     },
   })
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    updateProjectMutation.mutate({
+      id: data.id,
+      title: values.title,
+      description: values.description,
+    })
   }
 
   function onOpenChange(open: boolean) {
@@ -111,24 +114,7 @@ const EditProjectModal = ({ data }: any) => {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="members"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Members</FormLabel>
-                    <FormControl>
-                      <MultiSelect
-                        options={membersOptions}
-                        defaultValue={field.value}
-                        placeholder="Select members"
-                        onValueChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+
               <DialogFooter>
                 <Button
                   variant="animated"

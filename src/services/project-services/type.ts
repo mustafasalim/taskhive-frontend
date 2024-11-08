@@ -19,3 +19,9 @@ export interface IAddMembersToProject {
   projectId: string
   members: string[]
 }
+
+export interface IUpdateProject {
+  title: string | undefined
+  description: string | undefined
+  id: string
+}
