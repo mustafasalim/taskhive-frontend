@@ -23,7 +23,11 @@ export interface IActiveWorkspaces {
   name: string
   currentUserRole: "admin" | "operator" | "member"
   description: string
-  owner: string
+  owner: {
+    name: string
+    email: string
+    _id: string
+  }
   members: string[] | undefined
   createdAt: Date
   updatedAt: Date

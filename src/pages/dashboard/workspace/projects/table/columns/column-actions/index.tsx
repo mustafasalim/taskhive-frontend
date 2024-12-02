@@ -57,6 +57,9 @@ const ColumnActions = (props: ColumnActionsProps) => {
     },
   })
 
+  console.log(membersOptions)
+  console.log(activeWorkspace)
+
   const addMembersToProjectMutation = useMutation({
     mutationFn: projectServices.addMembersToProject,
     onSuccess: () => {
@@ -136,6 +139,9 @@ const ColumnActions = (props: ColumnActionsProps) => {
                                 className="flex items-center space-x-2"
                               >
                                 <Checkbox
+                                  disabled={
+                                    activeWorkspace.owner?._id === member.value
+                                  }
                                   checked={field.value.includes(member.value)}
                                   onCheckedChange={(checked) => {
                                     const newValue = checked

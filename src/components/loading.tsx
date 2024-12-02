@@ -1,6 +1,5 @@
 import { motion } from "framer-motion"
 
-// Framer Motion için döndürme animasyonu ayarları
 const spinTransition = {
   repeat: Infinity,
   ease: "easeInOut",

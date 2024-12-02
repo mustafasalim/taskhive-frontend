@@ -1,5 +1,6 @@
 import {
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -18,6 +19,7 @@ const YourMenu = () => {
   }
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+      <SidebarGroupLabel>Yours</SidebarGroupLabel>
       <SidebarMenu>
         {mock.data.map((item) => (
           <SidebarMenuItem key={item.title}>
