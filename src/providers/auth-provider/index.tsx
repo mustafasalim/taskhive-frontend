@@ -15,16 +15,13 @@ const AuthProvider = ({ children }: Props) => {
     const token = getAccessTokenFromLocalStorage()
 
     if (token) {
-      if (
-        location.pathname.includes("/auth/login") ||
-        location.pathname.includes("/auth/signup")
-      ) {
+      if (location.pathname.includes("/auth")) {
         navigate("/dashboard")
         window.location.reload()
       }
     } else {
       if (location.pathname.includes("/dashboard")) {
-        navigate("/auth/login")
+        navigate("/auth")
       }
     }
   }, [location.pathname, navigate])

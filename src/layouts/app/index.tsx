@@ -3,7 +3,6 @@ import { getAccessTokenFromLocalStorage } from "@/lib/hooks/use-access-token"
 import AppProvider from "@/providers/app-provider"
 import queries from "@/queries"
 import { useQuery } from "@tanstack/react-query"
-
 import { useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
@@ -17,26 +16,22 @@ const AppLayout = () => {
   })
 
   useEffect(() => {
-    if (data && data.length === 0 && location.pathname === "/dashboard") {
-      navigate("/create-join")
-    } else {
-      navigate("/dashboard")
-    }
-  }, [data, navigate])
+    const accessToken = getAccessTokenFromLocalStorage()
 
-  useEffect(() => {
-    const checkAuthentication = () => {
-      const accessToken = getAccessTokenFromLocalStorage()
-
-      if (!accessToken) {
+    if (!accessToken) {
+      if (!location.pathname.startsWith("/auth")) {
         navigate("/auth/login")
-      } else if (location.pathname === "/") {
+      }
+    } else {
+      if (location.pathname === "/") {
         navigate("/dashboard")
       }
-    }
 
-    checkAuthentication()
-  }, [location.pathname])
+      if (data && data.length === 0 && location.pathname === "/dashboard") {
+        navigate("/create-join")
+      }
+    }
+  }, [location.pathname, data, navigate])
 
   return <AppProvider />
 }

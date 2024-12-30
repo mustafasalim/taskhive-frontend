@@ -14,7 +14,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-import { Box, ChevronRight, Layers, SquareTerminal, Users } from "lucide-react"
+import { Box, ChevronRight, Layers, SquareTerminal } from "lucide-react"
 
 import { Link } from "react-router-dom"
 
@@ -29,18 +29,13 @@ const WorkspaceMenu = () => {
         items: [
           {
             title: "Issues",
-            url: "#",
+            url: "workspace/issues",
             icon: Layers,
           },
           {
             title: "Projects",
-            url: "/dashboard/workspace/projects",
+            url: "workspace/projects",
             icon: Box,
-          },
-          {
-            title: "Users",
-            url: "/dashboard/workspace/users",
-            icon: Users,
           },
         ],
       },

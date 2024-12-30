@@ -13,7 +13,6 @@ import { useParams } from "react-router-dom"
 const ResetPassword = () => {
   const { theme } = useTheme()
   const { token } = useParams()
-  console.log(token)
 
   return (
     <>

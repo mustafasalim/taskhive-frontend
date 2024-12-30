@@ -22,6 +22,18 @@ export const columns: ColumnDef<IProject>[] = [
     header: "Title",
     enableResizing: false,
     size: 650,
+    cell: ({ getValue }: any) => (
+      <div className="flex items-center gap-x-2">
+        <img
+          className="rounded-md"
+          width={30}
+          height={30}
+          src={`https://api.dicebear.com/9.x/identicon/svg?seed=${getValue()}`}
+          alt=""
+        />
+        <div>{getValue()}</div>
+      </div>
+    ),
   },
   {
     accessorKey: "workspaceName",

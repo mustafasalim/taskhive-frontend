@@ -64,7 +64,7 @@ const YourWorkspaceMenu = () => {
   return (
     <>
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <SidebarGroupLabel>Your Teams</SidebarGroupLabel>
+        <SidebarGroupLabel>Active Team</SidebarGroupLabel>
         <SidebarMenu>
           <SidebarMenuItem key={activeWorkspace?.name}>
             <SidebarMenuButton asChild>

@@ -12,7 +12,6 @@ export const authRoutes: RouteObject = {
       path: "signup",
       element: <Signup />,
     },
-
     {
       path: "login",
       element: <Login />,
