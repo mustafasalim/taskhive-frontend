@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import useModalStore from "@/stores/modal-slice"
 import VerifyEmailModal from "./verify-email"
 import ForgotPasswordModal from "./forgot-password"
 import InviteWorkspaceModal from "./invite-workspace"
 import CreateProjectModal from "./create-project"
 import EditProjectModal from "./edit-project"
+import CreateStatusModal from "./create-status"
+import CreateIssueModal from "./create-issue"
 
 const modalData = [
   {
@@ -26,6 +29,14 @@ const modalData = [
     name: "edit-project",
     element: EditProjectModal,
   },
+  {
+    name: "create-status",
+    element: CreateStatusModal,
+  },
+  {
+    name: "create-issue",
+    element: CreateIssueModal,
+  },
 ]
 
 const Modal = () => {
@@ -33,7 +44,7 @@ const Modal = () => {
 
   return (
     <>
-      {modals.map((modal) => {
+      {modals.map((modal: any) => {
         const modalElement = modalData.find((m) => m.name === modal.name)
 
         if (modalElement) {

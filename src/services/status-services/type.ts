@@ -1,7 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+export interface CreateStatusDto {
+  name: string
+  order?: number
+  projectId: string
+}
 
-export interface ICreateStatus {
+export interface UpdateStatusDto {
+  name?: string
+  order?: number
+}
+
+export interface Status {
+  _id: string
   name: string
   order: number
   projectId: string
+  createdAt: Date
+  updatedAt: Date
 }
