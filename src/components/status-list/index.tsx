@@ -110,32 +110,50 @@ const StatusList = () => {
       const destinationStatusId = result.destination.droppableId
       const issueId = result.draggableId
 
-      // Optimistically update the UI
-      const sourceIssues =
-        queryClient.getQueryData<Issue[]>(["issues", sourceStatusId]) || []
-      const destinationIssues =
-        queryClient.getQueryData<Issue[]>(["issues", destinationStatusId]) || []
+      // Get all issues data
+      const allIssuesData = queryClient.getQueryData<Issue[][]>([
+        "issues",
+        statuses?.map((s: Status) => s._id),
+      ])
+      if (!allIssuesData) return
 
-      const [movedIssue] = sourceIssues.splice(result.source.index, 1)
+      // Find source and destination status indices
+      const sourceStatusIndex =
+        statuses?.findIndex((s: Status) => s._id === sourceStatusId) ?? -1
+      const destStatusIndex =
+        statuses?.findIndex((s: Status) => s._id === destinationStatusId) ?? -1
+      if (sourceStatusIndex === -1 || destStatusIndex === -1) return
+
+      // Create deep copies of the arrays to avoid mutation
+      const newAllIssuesData = allIssuesData.map((statusIssues) => [
+        ...statusIssues,
+      ])
+
+      // Move the issue
+      const [movedIssue] = newAllIssuesData[sourceStatusIndex].splice(
+        result.source.index,
+        1
+      )
       if (movedIssue) {
         movedIssue.status = destinationStatusId
-        destinationIssues.splice(result.destination.index, 0, movedIssue)
+        newAllIssuesData[destStatusIndex].splice(
+          result.destination.index,
+          0,
+          movedIssue
+        )
       }
 
-      queryClient.setQueryData(["issues", sourceStatusId], sourceIssues)
+      // Update the cache with all changes at once
       queryClient.setQueryData(
-        ["issues", destinationStatusId],
-        destinationIssues
+        ["issues", statuses?.map((s: Status) => s._id)],
+        newAllIssuesData
       )
 
       try {
         await issueServices.updateIssue(issueId, {
           status: destinationStatusId,
         })
-        // Invalidate the main issues query to refresh all lists
-        queryClient.invalidateQueries({
-          queryKey: ["issues", statuses?.map((s: Status) => s._id)],
-        })
+        // Only invalidate if the update fails
       } catch (_error) {
         // On error, revert the optimistic update
         queryClient.invalidateQueries({

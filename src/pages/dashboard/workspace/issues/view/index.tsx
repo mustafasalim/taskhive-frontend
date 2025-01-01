@@ -21,8 +21,15 @@ import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { commentServices } from "@/services/comment-services"
 import { issueServices } from "@/services/issue-services"
-import { Issue } from "@/services/issue-services/type"
+import { Issue, UpdateIssueDto } from "@/services/issue-services/type"
 import PageHeader from "@/components/page-header"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 const priorityColors: Record<string, string> = {
   low: "text-blue-500 bg-blue-50 dark:bg-blue-900/20",
@@ -46,41 +53,51 @@ const ViewIssuePage = () => {
   const [editDescription, setEditDescription] = useState(
     issue?.description ?? ""
   )
+  const [editPriority, setEditPriority] = useState<"low" | "medium" | "high">(
+    issue?.priority ?? "low"
+  )
 
   const { mutate: updateIssue, isPending } = useMutation({
-    mutationFn: (data: { title: string; description: string }) =>
+    mutationFn: (data: UpdateIssueDto) =>
       issueServices.updateIssue(issueId!, data),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["issue", issueId],
+      })
       queryClient.invalidateQueries({
         queryKey: [["issues", issue?.status]],
         exact: false,
       })
-
       queryClient.invalidateQueries({
         queryKey: ["issues"],
         exact: false,
       })
-
       setIsEditing(false)
     },
   })
 
   const handleStartEdit = () => {
+    setEditTitle(issue?.title ?? "")
+    setEditDescription(issue?.description ?? "")
+    setEditPriority(issue?.priority ?? "low")
     setIsEditing(true)
   }
 
   const handleCancelEdit = () => {
     setEditTitle(issue?.title ?? "")
     setEditDescription(issue?.description ?? "")
+    setEditPriority(issue?.priority ?? "low")
     setIsEditing(false)
   }
 
   const handleSaveEdit = () => {
     if (!editTitle.trim()) return
-    updateIssue({
+    const updateData: UpdateIssueDto = {
       title: editTitle,
       description: editDescription,
-    })
+      priority: editPriority,
+    }
+    updateIssue(updateData)
   }
 
   const { data: comments = [] } = useQuery({
@@ -103,9 +120,7 @@ const ViewIssuePage = () => {
     createComment(newComment)
   }
 
-  if (isLoading || !issue) {
-    return <div>Loading...</div>
-  }
+  if (isLoading || !issue) return <div>Loading...</div>
 
   return (
     <div className="w-full flex flex-col h-full">
@@ -143,6 +158,23 @@ const ViewIssuePage = () => {
                         placeholder="Enter issue description"
                         className="min-h-[100px] text-sm text-muted-foreground"
                       />
+                      <Select
+                        value={editPriority}
+                        onValueChange={(value: "low" | "medium" | "high") =>
+                          setEditPriority(value)
+                        }
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low Priority</SelectItem>
+                          <SelectItem value="medium">
+                            Medium Priority
+                          </SelectItem>
+                          <SelectItem value="high">High Priority</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <div className="flex items-center gap-2">
                         <Button
                           size="sm"
@@ -183,21 +215,24 @@ const ViewIssuePage = () => {
                     </>
                   )}
                 </div>
+                {!isEditing && (
+                  <div
+                    className={cn(
+                      "flex items-center gap-1 text-sm px-3 py-1 rounded-full shrink-0 w-fit",
+                      priorityColors[issue.priority || "low"]
+                    )}
+                  >
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="capitalize whitespace-nowrap font-medium">
+                      {issue.priority
+                        ? `${issue.priority} Priority`
+                        : "Low Priority"}
+                    </span>
+                  </div>
+                )}
               </div>
-              {!isEditing && issue.priority && (
-                <div
-                  className={cn(
-                    "flex items-center gap-1 text-sm px-3 py-1 rounded-full shrink-0 ml-4",
-                    priorityColors[issue.priority]
-                  )}
-                >
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="capitalize whitespace-nowrap font-medium">
-                    {issue.priority} Priority
-                  </span>
-                </div>
-              )}
             </div>
+
             <div className="flex items-center gap-4 text-sm text-muted-foreground border-b pb-4">
               <div className="flex items-center gap-1.5">
                 <Clock className="h-4 w-4" />
@@ -208,120 +243,120 @@ const ViewIssuePage = () => {
                 <span>Updated {format(new Date(issue.updatedAt), "PPP")}</span>
               </div>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
-                <Users className="h-3 w-3 text-purple-500" />
-              </span>
-              Assigned To
-            </h3>
-            <div className="pl-2">
-              {issue.assignedTo && issue.assignedTo.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {issue.assignedTo.map((user) => (
-                    <div
-                      key={user._id}
-                      className="flex items-center gap-2 bg-gray-50 dark:bg-sidebar rounded-md px-3 py-1.5"
-                    >
-                      <Avatar className="h-5 w-5">
-                        <AvatarImage
-                          src={`https://api.dicebear.com/9.x/initials/svg?seed=${user.name}`}
-                        />
-                      </Avatar>
-                      <span className="text-sm">{user.name}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Not assigned to anyone
-                </p>
-              )}
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-900/20 flex items-center justify-center">
+                  <Users className="h-3 w-3 text-purple-500" />
+                </span>
+                Assigned To
+              </h3>
+              <div className="pl-2">
+                {issue.assignedTo && issue.assignedTo.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {issue.assignedTo.map((user) => (
+                      <div
+                        key={user._id}
+                        className="flex items-center gap-2 bg-gray-50 dark:bg-sidebar rounded-md px-3 py-1.5"
+                      >
+                        <Avatar className="h-5 w-5">
+                          <AvatarImage
+                            src={`https://api.dicebear.com/9.x/initials/svg?seed=${user.name}`}
+                          />
+                        </Avatar>
+                        <span className="text-sm">{user.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Not assigned to anyone
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                <Calendar className="h-3 w-3 text-blue-500" />
-              </span>
-              Due Date
-            </h3>
-            <p className="text-sm text-muted-foreground pl-7">
-              {issue.dueDate
-                ? format(new Date(issue.dueDate), "PPP")
-                : "No due date set"}
-            </p>
-          </div>
+            <div className="space-y-2">
+              <h3 className="text-sm font-semibold flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                  <Calendar className="h-3 w-3 text-blue-500" />
+                </span>
+                Due Date
+              </h3>
+              <p className="text-sm text-muted-foreground pl-7">
+                {issue.dueDate
+                  ? format(new Date(issue.dueDate), "PPP")
+                  : "No due date set"}
+              </p>
+            </div>
 
-          <div className="space-y-4 border-t pt-4">
-            <h3 className="text-sm font-semibold flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                <MessageSquare className="h-3 w-3 text-green-500" />
-              </span>
-              Comments
-            </h3>
-            <div className="space-y-4">
-              {comments.map((comment) => (
-                <div
-                  key={comment._id}
-                  className="flex gap-3"
-                >
-                  <Avatar className="h-6 w-6">
-                    <AvatarImage
-                      src={`https://api.dicebear.com/9.x/initials/svg?seed=${comment.author.name}`}
-                    />
-                  </Avatar>
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">
-                        {comment.author.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {format(new Date(comment.createdAt), "PPP")}
-                      </span>
+            <div className="space-y-4 border-t pt-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                  <MessageSquare className="h-3 w-3 text-green-500" />
+                </span>
+                Comments
+              </h3>
+              <div className="space-y-4">
+                {comments.map((comment) => (
+                  <div
+                    key={comment._id}
+                    className="flex gap-3"
+                  >
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage
+                        src={`https://api.dicebear.com/9.x/initials/svg?seed=${comment.author.name}`}
+                      />
+                    </Avatar>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">
+                          {comment.author.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(comment.createdAt), "PPP")}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {comment.content}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      {comment.content}
-                    </p>
                   </div>
-                </div>
-              ))}
+                ))}
 
-              <form
-                onSubmit={handleSubmitComment}
-                className="flex gap-2 items-start pt-2"
-              >
-                <div className="flex-1">
-                  <textarea
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault()
-                        if (newComment.trim()) {
-                          handleSubmitComment(e)
+                <form
+                  onSubmit={handleSubmitComment}
+                  className="flex gap-2 items-start pt-2"
+                >
+                  <div className="flex-1">
+                    <textarea
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault()
+                          if (newComment.trim()) {
+                            handleSubmitComment(e)
+                          }
                         }
-                      }
-                    }}
-                    placeholder="Write a comment..."
-                    className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                  />
-                  <div className="flex justify-end mt-2">
-                    <Button
-                      size="sm"
-                      type="submit"
-                      disabled={!newComment.trim()}
-                      className="flex items-center gap-2"
-                    >
-                      <Send className="h-4 w-4" />
-                      Send
-                    </Button>
+                      }}
+                      placeholder="Write a comment..."
+                      className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                    />
+                    <div className="flex justify-end mt-2">
+                      <Button
+                        size="sm"
+                        type="submit"
+                        disabled={!newComment.trim()}
+                        className="flex items-center gap-2"
+                      >
+                        <Send className="h-4 w-4" />
+                        Send
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
         </div>

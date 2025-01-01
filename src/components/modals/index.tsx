@@ -8,7 +8,6 @@ import EditProjectModal from "./edit-project"
 import CreateStatusModal from "./create-status"
 import UpdateStatusModal from "./update-status"
 import CreateIssueModal from "./create-issue"
-import ViewIssueModal from "./view-issue"
 import EditIssueModal from "./edit-issue"
 
 const modalData = [
@@ -44,10 +43,7 @@ const modalData = [
     name: "create-issue",
     element: CreateIssueModal,
   },
-  {
-    name: "view-issue",
-    element: ViewIssueModal,
-  },
+
   {
     name: "edit-issue",
     element: EditIssueModal,
