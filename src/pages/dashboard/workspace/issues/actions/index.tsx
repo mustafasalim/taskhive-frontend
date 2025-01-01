@@ -56,7 +56,7 @@ const IssuesPageHeaderActions = () => {
     <div className="flex items-center gap-x-2">
       <Button
         onClick={handleClickCreateStatus}
-        variant="outline"
+        variant="ghost"
         size="sm"
         disabled={!activeProject}
       >

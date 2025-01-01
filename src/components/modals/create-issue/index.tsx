@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Dialog,
   DialogContent,
@@ -18,7 +17,6 @@ import { Status } from "@/services/status-services/type"
 import { useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { issueServices } from "@/services/issue-services"
-import { toast } from "sonner"
 import { destroyAllModal } from "@/stores/store-actions/modal-action"
 import { useWorkspaceStore } from "@/stores/workspace-slice"
 import { workspaceServices } from "@/services/workspace-services"
@@ -37,6 +35,7 @@ const CreateIssueModal = ({
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [assignedTo, setAssignedTo] = useState<string>("")
+  const [priority, setPriority] = useState<"low" | "medium" | "high">("low")
   const queryClient = useQueryClient()
   const { activeWorkspace } = useWorkspaceStore()
 
@@ -48,18 +47,33 @@ const CreateIssueModal = ({
   })
 
   const { mutate: createIssue, isPending } = useMutation({
-    mutationFn: (data: any) => issueServices.addIssueToStatus(data),
+    mutationFn: (data: {
+      title: string
+      description: string
+      assignedTo: string[]
+      priority: "low" | "medium" | "high"
+    }) =>
+      issueServices.addIssueToStatus({
+        title: data.title,
+        description: data.description,
+        assignedTo: data.assignedTo,
+        priority: data.priority,
+        statusId: status._id,
+        project: status.projectId,
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["issues", status._id] })
-      toast.success("Issue created successfully")
+      queryClient.invalidateQueries({
+        queryKey: [["issues", status._id]],
+        exact: true,
+        refetchType: "all",
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: ["issues"],
+        exact: false,
+      })
+
       handleClose()
-      setTitle("")
-      setDescription("")
-      setAssignedTo("")
-    },
-    onError: (error: any) => {
-      console.error("Error creating issue:", error?.response?.data || error)
-      toast.error("Failed to create issue")
     },
   })
 
@@ -70,15 +84,14 @@ const CreateIssueModal = ({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!title.trim()) {
-      toast.error("Title is required")
       return
     }
 
     createIssue({
-      statusId: status._id,
       title,
       description,
       assignedTo: assignedTo ? [assignedTo] : [],
+      priority,
     })
   }
 
@@ -124,6 +137,29 @@ const CreateIssueModal = ({
               rows={4}
               className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="priority"
+              className="text-sm font-medium"
+            >
+              Priority
+            </label>
+            <Select
+              value={priority}
+              onValueChange={(value: "low" | "medium" | "high") =>
+                setPriority(value)
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low">Low</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <label

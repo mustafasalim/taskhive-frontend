@@ -14,7 +14,12 @@ export const issueServices = {
   },
 
   updateIssue: async (issueId: string, data: UpdateIssueDto) => {
-    const response = await api.patch(`/issues/${issueId}`, data)
+    const response = await api.put(`/statuses/issues/${issueId}/update`, data)
+    return response.data
+  },
+
+  getIssueById: async (issueId: string) => {
+    const response = await api.get(`/statuses/issues/${issueId}`)
     return response.data
   },
 }

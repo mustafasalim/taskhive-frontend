@@ -39,7 +39,15 @@ const CreateStatusModal = ({ data }: any) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: queries.statuses.getStatuses(data).queryKey,
+        exact: true,
+        refetchType: "all",
       })
+
+      queryClient.invalidateQueries({
+        queryKey: ["statuses"],
+        exact: false,
+      })
+
       destroyAllModal()
     },
   })

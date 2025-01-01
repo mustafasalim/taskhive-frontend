@@ -18,7 +18,7 @@ const DashboardLayout = () => {
         </header>
 
         <div className="w-full h-full flex flex-col gap-4 p-4 pt-0">
-          <div className="min-h-[100vh] py-2 px-3 border flex-1 rounded-sm bg-white/40 dark:bg-black/20 md:min-h-min">
+          <div className="h-full py-2 px-3 border flex-1 rounded-sm bg-white/40 dark:bg-black/20 md:min-h-min">
             <Outlet />
           </div>
         </div>

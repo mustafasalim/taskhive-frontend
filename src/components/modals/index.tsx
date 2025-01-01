@@ -6,7 +6,10 @@ import InviteWorkspaceModal from "./invite-workspace"
 import CreateProjectModal from "./create-project"
 import EditProjectModal from "./edit-project"
 import CreateStatusModal from "./create-status"
+import UpdateStatusModal from "./update-status"
 import CreateIssueModal from "./create-issue"
+import ViewIssueModal from "./view-issue"
+import EditIssueModal from "./edit-issue"
 
 const modalData = [
   {
@@ -34,8 +37,20 @@ const modalData = [
     element: CreateStatusModal,
   },
   {
+    name: "update-status",
+    element: UpdateStatusModal,
+  },
+  {
     name: "create-issue",
     element: CreateIssueModal,
+  },
+  {
+    name: "view-issue",
+    element: ViewIssueModal,
+  },
+  {
+    name: "edit-issue",
+    element: EditIssueModal,
   },
 ]
 

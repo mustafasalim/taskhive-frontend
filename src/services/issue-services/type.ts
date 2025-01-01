@@ -14,6 +14,7 @@ export interface UpdateIssueDto {
   assignedTo?: string[]
   dueDate?: Date
   priority?: "low" | "medium" | "high"
+  status?: string
 }
 
 export interface User {
@@ -23,7 +24,7 @@ export interface User {
 }
 
 export interface Issue {
-  id: string
+  _id: string
   title: string
   description?: string
   assignedTo?: User[]
