@@ -1,14 +1,16 @@
+import { ReactNode } from "react"
+
 interface IPageHeader {
-  title: string
-  action?: React.ReactElement
+  title: ReactNode
+  actions?: ReactNode
 }
 
 const PageHeader = (props: IPageHeader) => {
-  const { title, action } = props
+  const { title, actions } = props
   return (
-    <div className="px-2 py-1 w-full flex  justify-between items-center border-b min-h-[50px]">
-      <h1 className="text-sm  font-semibold">{title}</h1>
-      <div>{action}</div>
+    <div className="px-2 py-1 w-full flex justify-between items-center border-b min-h-[50px]">
+      <div className="text-sm font-semibold">{title}</div>
+      <div>{actions}</div>
     </div>
   )
 }

@@ -7,7 +7,7 @@ const WorkspaceIssuesPage = () => {
     <div className="w-full flex flex-col h-full">
       <PageHeader
         title="All Issues"
-        action={<IssuesPageHeaderActions />}
+        actions={<IssuesPageHeaderActions />}
       />
 
       <div className="h-full w-full">

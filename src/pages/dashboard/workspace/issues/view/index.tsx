@@ -13,7 +13,9 @@ import {
   Check,
   X,
   ArrowLeft,
+  Video,
 } from "lucide-react"
+import MediaRoom from "@/components/media-room"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -41,6 +43,7 @@ const ViewIssuePage = () => {
   const { issueId } = useParams()
   const navigate = useNavigate()
   const [newComment, setNewComment] = useState("")
+  const [isVideoChat, setIsVideoChat] = useState(false)
   const queryClient = useQueryClient()
 
   const { data: issue, isLoading } = useQuery<Issue>({
@@ -120,21 +123,56 @@ const ViewIssuePage = () => {
     createComment(newComment)
   }
 
+  if (isVideoChat && issue) {
+    return (
+      <div className="flex h-full flex-col ">
+        <div className="p-4 border-b">
+          <Button
+            variant="ghost"
+            onClick={() => setIsVideoChat(false)}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Issue
+          </Button>
+        </div>
+        <div className=" flex justify-center items-center h-full w-full">
+          <MediaRoom
+            chatId={issueId!}
+            video={false}
+            audio={false}
+          />
+        </div>
+      </div>
+    )
+  }
+
   if (isLoading || !issue) return <div>Loading...</div>
 
   return (
-    <div className="w-full flex flex-col h-full">
+    <div>
       <PageHeader
-        title="View Issue"
-        action={
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
+        title={
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h1>Issue Details</h1>
+          </div>
+        }
+        actions={
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsVideoChat(true)}
+            >
+              <Video className="mr-2 h-4 w-4" />
+              Join Video Chat
+            </Button>
+            {/* ... existing buttons ... */}
+          </div>
         }
       />
 
@@ -214,22 +252,22 @@ const ViewIssuePage = () => {
                       </Button>
                     </>
                   )}
+                  {!isEditing && (
+                    <div
+                      className={cn(
+                        "flex items-center gap-1 text-sm px-3 py-1 rounded-full shrink-0 w-fit",
+                        priorityColors[issue.priority || "low"]
+                      )}
+                    >
+                      <AlertCircle className="h-4 w-4" />
+                      <span className="capitalize whitespace-nowrap font-medium">
+                        {issue.priority
+                          ? `${issue.priority} Priority`
+                          : "Low Priority"}
+                      </span>
+                    </div>
+                  )}
                 </div>
-                {!isEditing && (
-                  <div
-                    className={cn(
-                      "flex items-center gap-1 text-sm px-3 py-1 rounded-full shrink-0 w-fit",
-                      priorityColors[issue.priority || "low"]
-                    )}
-                  >
-                    <AlertCircle className="h-4 w-4" />
-                    <span className="capitalize whitespace-nowrap font-medium">
-                      {issue.priority
-                        ? `${issue.priority} Priority`
-                        : "Low Priority"}
-                    </span>
-                  </div>
-                )}
               </div>
             </div>
 

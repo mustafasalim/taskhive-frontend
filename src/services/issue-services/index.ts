@@ -22,4 +22,12 @@ export const issueServices = {
     const response = await api.get(`/statuses/issues/${issueId}`)
     return response.data
   },
+
+  getLiveKitToken: async (room: string, username: string) => {
+    const response = await api.get(
+      `statuses/issues/livekit/token?room=${room}&username=${username}`,
+      {}
+    )
+    return response.data.token
+  },
 }

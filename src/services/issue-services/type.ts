@@ -34,4 +34,5 @@ export interface Issue {
   createdAt: Date
   updatedAt: Date
   priority?: "low" | "medium" | "high"
+  videoToken?: string
 }
