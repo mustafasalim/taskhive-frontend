@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Layers,
   MoreHorizontal,
+  Settings,
   SquareTerminal,
   Users,
 } from "lucide-react"
@@ -55,6 +56,11 @@ const WorkspaceMenu = () => {
             title: "Members",
             url: "workspace/members",
             icon: Users,
+          },
+          {
+            title: "Settings",
+            url: "settings",
+            icon: Settings,
           },
         ],
       },

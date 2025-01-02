@@ -7,7 +7,7 @@ const WorkspaceProjectsPage = () => {
     <div>
       <PageHeader
         title="Projects"
-        action={<ProjectsPageHeaderActions />}
+        actions={<ProjectsPageHeaderActions />}
       />
       <ProjectsTable />
     </div>

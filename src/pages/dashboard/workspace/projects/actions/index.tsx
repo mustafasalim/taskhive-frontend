@@ -14,6 +14,8 @@ const ProjectsPageHeaderActions = () => {
       data: activeWorkspace?._id,
     })
   }
+  console.log("cwa", activeWorkspace?.currentUserRole)
+
   return (
     <div>
       {(activeWorkspace?.currentUserRole === "admin" ||

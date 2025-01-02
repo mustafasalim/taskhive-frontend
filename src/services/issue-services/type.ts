@@ -6,6 +6,7 @@ export interface CreateIssueDto {
   dueDate?: Date
   project: string
   priority?: "low" | "medium" | "high"
+  images?: File[]
 }
 
 export interface UpdateIssueDto {
@@ -35,4 +36,5 @@ export interface Issue {
   updatedAt: Date
   priority?: "low" | "medium" | "high"
   videoToken?: string
+  images?: string[]
 }

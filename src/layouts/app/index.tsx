@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { getAccessTokenFromLocalStorage } from "@/lib/hooks/use-access-token"
 import AppProvider from "@/providers/app-provider"
 import queries from "@/queries"
@@ -22,13 +21,15 @@ const AppLayout = () => {
       if (!location.pathname.startsWith("/auth")) {
         navigate("/auth/login")
       }
-    } else {
-      if (location.pathname === "/") {
-        navigate("/dashboard")
-      }
+      return
+    }
 
-      if (data && data.length === 0 && location.pathname === "/dashboard") {
+    // Only handle redirects if we have a token
+    if (location.pathname === "/" || location.pathname === "/dashboard") {
+      if (data && data.length === 0) {
         navigate("/create-join")
+      } else {
+        navigate("/dashboard/workspace/issues")
       }
     }
   }, [location.pathname, data, navigate])

@@ -23,10 +23,13 @@ import {
   DroppableProvided,
   DraggableProvided,
 } from "react-beautiful-dnd"
+import { useEffect } from "react"
+import { useWorkspaceStore } from "@/stores/workspace-slice"
 
 const StatusList = () => {
   const queryClient = useQueryClient()
   const { activeProject } = useProjectStore()
+  const { activeWorkspace } = useWorkspaceStore()
   const { data: statuses, isLoading } = useQuery({
     queryKey: ["statuses", activeProject?._id],
     queryFn: () =>
@@ -163,6 +166,8 @@ const StatusList = () => {
     }
   }
 
+  useEffect(() => {}, [activeWorkspace])
+
   if (isLoading) {
     return <div className="p-4">Loading statuses...</div>
   }
@@ -199,7 +204,7 @@ const StatusList = () => {
                         className="w-[360px] h-full flex flex-col bg-white/50 dark:bg-black/20 rounded-lg border overflow-y-auto"
                       >
                         <div
-                          className="p-4 border-b shrink-0"
+                          className="p-4 border-b shrink-0 sticky top-0 z-10 bg-white dark:bg-sidebar"
                           {...provided.dragHandleProps}
                         >
                           <div className="flex justify-between items-center">
@@ -250,7 +255,7 @@ const StatusList = () => {
                             <div
                               ref={provided.innerRef}
                               {...provided.droppableProps}
-                              className="flex-1 p-2"
+                              className="flex-1 p-2  max-h-[300px]"
                             >
                               {issueQueries.data?.[index]?.map(
                                 (issue: Issue, issueIndex: number) => (

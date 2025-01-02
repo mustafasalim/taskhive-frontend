@@ -14,13 +14,15 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Status } from "@/services/status-services/type"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { issueServices } from "@/services/issue-services"
 import { destroyAllModal } from "@/stores/store-actions/modal-action"
 import { useWorkspaceStore } from "@/stores/workspace-slice"
 import { workspaceServices } from "@/services/workspace-services"
 import { IWorkspaceMember } from "@/services/workspace-services/type"
+import { Image as ImageIcon } from "lucide-react"
+import { toast } from "@/components/ui/use-toast"
 
 interface CreateIssueModalProps {
   data: {
@@ -36,6 +38,8 @@ const CreateIssueModal = ({
   const [description, setDescription] = useState("")
   const [assignedTo, setAssignedTo] = useState<string>("")
   const [priority, setPriority] = useState<"low" | "medium" | "high">("low")
+  const [selectedImages, setSelectedImages] = useState<File[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const queryClient = useQueryClient()
   const { activeWorkspace } = useWorkspaceStore()
 
@@ -52,6 +56,7 @@ const CreateIssueModal = ({
       description: string
       assignedTo: string[]
       priority: "low" | "medium" | "high"
+      images: File[]
     }) =>
       issueServices.addIssueToStatus({
         title: data.title,
@@ -60,6 +65,7 @@ const CreateIssueModal = ({
         priority: data.priority,
         statusId: status._id,
         project: status.projectId,
+        images: data.images,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -73,12 +79,36 @@ const CreateIssueModal = ({
         exact: false,
       })
 
+      toast({
+        title: "Issue created successfully",
+        description: "The issue has been created with the uploaded images.",
+      })
+
       handleClose()
+    },
+    onError: () => {
+      toast({
+        title: "Error creating issue",
+        description: "There was an error creating the issue. Please try again.",
+        variant: "destructive",
+      })
     },
   })
 
   const handleClose = () => {
+    setSelectedImages([])
     destroyAllModal()
+  }
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length > 0) {
+      setSelectedImages((prev) => [...prev, ...files])
+    }
+  }
+
+  const handleRemoveImage = (index: number) => {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -92,6 +122,7 @@ const CreateIssueModal = ({
       description,
       assignedTo: assignedTo ? [assignedTo] : [],
       priority,
+      images: selectedImages,
     })
   }
 
@@ -186,6 +217,50 @@ const CreateIssueModal = ({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Images</label>
+            <div className="flex flex-col gap-4">
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                multiple
+                accept="image/*"
+                onChange={handleImageSelect}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <ImageIcon className="h-4 w-4 mr-2" />
+                Add Images
+              </Button>
+              {selectedImages.length > 0 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {selectedImages.map((image, index) => (
+                    <div
+                      key={index}
+                      className="relative group"
+                    >
+                      <img
+                        src={URL.createObjectURL(image)}
+                        alt={`Selected ${index + 1}`}
+                        className="w-full h-24 object-cover rounded-md"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex justify-end gap-2">
             <Button

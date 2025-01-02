@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
@@ -14,6 +14,8 @@ import {
   X,
   ArrowLeft,
   Video,
+  Image as ImageIcon,
+  Trash2,
 } from "lucide-react"
 import MediaRoom from "@/components/media-room"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
@@ -32,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { toast } from "@/components/ui/use-toast"
 
 const priorityColors: Record<string, string> = {
   low: "text-blue-500 bg-blue-50 dark:bg-blue-900/20",
@@ -44,6 +47,7 @@ const ViewIssuePage = () => {
   const navigate = useNavigate()
   const [newComment, setNewComment] = useState("")
   const [isVideoChat, setIsVideoChat] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const queryClient = useQueryClient()
 
   const { data: issue, isLoading } = useQuery<Issue>({
@@ -123,6 +127,85 @@ const ViewIssuePage = () => {
     createComment(newComment)
   }
 
+  const uploadImagesMutation = useMutation({
+    mutationFn: (files: File[]) =>
+      issueServices.updateIssueImages(issueId!, files),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["issue", issueId] })
+      queryClient.invalidateQueries({ queryKey: ["issues"] })
+      toast({
+        title: "Images uploaded successfully",
+        description: "The images have been added to the issue.",
+      })
+    },
+    onError: () => {
+      toast({
+        title: "Error uploading images",
+        description:
+          "There was an error uploading the images. Please try again.",
+        variant: "destructive",
+      })
+    },
+  })
+
+  const deleteImageMutation = useMutation({
+    mutationFn: (imageUrl: string) =>
+      issueServices.deleteIssueImage(issueId!, imageUrl),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["issue", issueId] })
+      queryClient.invalidateQueries({ queryKey: ["issues"] })
+      toast({
+        title: "Image deleted successfully",
+        description: "The image has been removed from the issue.",
+      })
+    },
+    onError: () => {
+      toast({
+        title: "Error deleting image",
+        description: "There was an error deleting the image. Please try again.",
+        variant: "destructive",
+      })
+    },
+  })
+
+  const handleDeleteImage = (imageUrl: string) => {
+    deleteImageMutation.mutate(imageUrl)
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    if (files.length > 0) {
+      uploadImagesMutation.mutate(files)
+    }
+  }
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const { mutate: deleteIssueMutation } = useMutation({
+    mutationFn: () => issueServices.deleteIssue(issueId!),
+    onSuccess: () => {
+      toast({
+        title: "Issue deleted",
+        description: "The issue has been deleted successfully.",
+      })
+      navigate("/dashboard/workspace/issues")
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete the issue. Please try again.",
+        variant: "destructive",
+      })
+    },
+  })
+
+  const handleDeleteIssue = () => {
+    deleteIssueMutation()
+    window.location.reload()
+  }
+
   if (isVideoChat && issue) {
     return (
       <div className="flex h-full flex-col ">
@@ -150,20 +233,9 @@ const ViewIssuePage = () => {
   return (
     <div>
       <PageHeader
-        title={
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <h1>Issue Details</h1>
-          </div>
-        }
+        title="Issue Details"
         actions={
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               onClick={() => setIsVideoChat(true)}
@@ -171,7 +243,12 @@ const ViewIssuePage = () => {
               <Video className="mr-2 h-4 w-4" />
               Join Video Chat
             </Button>
-            {/* ... existing buttons ... */}
+            <Button
+              variant="destructive"
+              onClick={handleDeleteIssue}
+            >
+              <Trash2 className=" h-4 w-4" />
+            </Button>
           </div>
         }
       />
@@ -235,12 +312,70 @@ const ViewIssuePage = () => {
                   ) : (
                     <>
                       <div className="flex-1">
-                        <h1 className="text-2xl font-semibold">
-                          {issue.title}
-                        </h1>
-                        <div className="text-sm text-muted-foreground whitespace-pre-wrap mt-1.5">
+                        <h1 className="text-2xl font-bold">{issue.title}</h1>
+                        <div className="text-md font-semibold  whitespace-pre-wrap mt-5">
                           {issue.description || "No description provided"}
                         </div>
+                        <div className="mt-2 flex w-full items-center justify-end">
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            multiple
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleImageClick}
+                            disabled={uploadImagesMutation.isPending}
+                            className="h-8 w-8"
+                          >
+                            <ImageIcon className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        {/* Add image gallery in description */}
+                        {issue?.images && issue.images.length > 0 && (
+                          <div className="mt-4">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                              {issue.images.map((imageUrl, index) => (
+                                <div
+                                  key={index}
+                                  className="relative group"
+                                >
+                                  <img
+                                    src={imageUrl}
+                                    alt={`Issue image ${index + 1}`}
+                                    className="rounded-lg object-cover w-full aspect-video"
+                                  />
+                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all flex items-center justify-center gap-2">
+                                    <a
+                                      href={imageUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-white opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 rounded-full p-2"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <span className="sr-only">View</span>
+                                      <ImageIcon className="h-4 w-4" />
+                                    </a>
+                                    <button
+                                      onClick={() =>
+                                        handleDeleteImage(imageUrl)
+                                      }
+                                      className="text-white opacity-0 group-hover:opacity-100 bg-red-500 rounded-full p-2"
+                                      disabled={deleteImageMutation.isPending}
+                                    >
+                                      <span className="sr-only">Delete</span>
+                                      <X className="h-4 w-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <Button
                         variant="ghost"
@@ -399,6 +534,23 @@ const ViewIssuePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Remove image gallery from bottom */}
+      {/* {issue?.images && issue.images.length > 0 && (
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold mb-2">Images</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {issue.images.map((imageUrl, index) => (
+              <img
+                key={index}
+                src={imageUrl}
+                alt={`Issue image ${index + 1}`}
+                className="rounded-lg object-cover w-full aspect-video"
+              />
+            ))}
+          </div>
+        </div>
+      )} */}
     </div>
   )
 }

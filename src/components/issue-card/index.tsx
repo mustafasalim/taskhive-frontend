@@ -44,6 +44,15 @@ const IssueCard = ({ issue }: IssueCardProps) => {
       className="mb-3 p-3 bg-white dark:bg-sidebar rounded-lg border shadow-sm hover:shadow-md transition-shadow cursor-pointer relative group"
       onClick={handleClick}
     >
+      {issue.images && issue.images.length > 0 && (
+        <div className="mb-3 -mt-3 -mx-3">
+          <img
+            src={issue.images[0]}
+            alt="Issue thumbnail"
+            className="w-full h-32 object-cover rounded-t-lg"
+          />
+        </div>
+      )}
       <div className="flex items-start justify-between gap-2 mb-2">
         <h4 className="font-medium">{issue.title}</h4>
         <div className="flex items-center gap-2">
