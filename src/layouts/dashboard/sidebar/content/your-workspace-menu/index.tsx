@@ -20,9 +20,11 @@ import { createModal } from "@/stores/store-actions/modal-action"
 import { useWorkspaceStore } from "@/stores/workspace-slice"
 import { useMutation } from "@tanstack/react-query"
 import { Folder, Forward, MoreHorizontal, Trash2 } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 const YourWorkspaceMenu = () => {
   const { activeWorkspace, setActiveWorkspace } = useWorkspaceStore()
+  const navigate = useNavigate()
 
   const deleteWorkspaceMutation = useMutation({
     mutationFn: workspaceServices.deleteWorkspace,
@@ -52,6 +54,10 @@ const YourWorkspaceMenu = () => {
 
   function handleSelectLeaveProject() {
     leaveWorkspaceMuation.mutate(activeWorkspace?._id as string)
+  }
+
+  function handleSelectViewProject() {
+    navigate(`/dashboard/workspace/issues`)
   }
 
   function handleSelectIviteProject() {
@@ -90,7 +96,7 @@ const YourWorkspaceMenu = () => {
                 side="bottom"
                 align="end"
               >
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSelectViewProject}>
                   <Folder className="text-muted-foreground" />
                   <span>View Project</span>
                 </DropdownMenuItem>

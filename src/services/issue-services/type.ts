@@ -1,12 +1,12 @@
 export interface CreateIssueDto {
-  statusId: string
   title: string
-  description?: string
-  assignedTo?: string[]
-  dueDate?: Date
+  description: string
+  assignedTo: string[]
+  priority: "low" | "medium" | "high"
+  statusId: string
   project: string
-  priority?: "low" | "medium" | "high"
-  images?: File[]
+  images: File[]
+  dueDate?: Date | null
 }
 
 export interface UpdateIssueDto {
@@ -27,14 +27,17 @@ export interface User {
 export interface Issue {
   _id: string
   title: string
-  description?: string
-  assignedTo?: User[]
-  dueDate?: Date
-  project: string
+  description: string
+  assignedTo: {
+    _id: string
+    name: string
+    email: string
+  }[]
+  priority: "low" | "medium" | "high"
   status: string
-  createdAt: Date
-  updatedAt: Date
-  priority?: "low" | "medium" | "high"
-  videoToken?: string
+  project: string
+  createdAt: string
+  updatedAt: string
   images?: string[]
+  dueDate?: string
 }

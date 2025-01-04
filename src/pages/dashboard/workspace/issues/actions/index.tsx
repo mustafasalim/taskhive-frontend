@@ -44,13 +44,40 @@ const IssuesPageHeaderActions = () => {
     }
   }
 
+  // Reset active project only when workspace changes
   useEffect(() => {
-    refetch()
-    // Set first project as active by default if there are projects
+    if (activeWorkspace) {
+      setActiveProject(null)
+    }
+  }, [activeWorkspace])
+
+  useEffect(() => {
+    handleProjectChange(activeProject?._id as string)
+  }, [])
+
+  // Reset active project only when workspace changes
+  useEffect(() => {
+    if (activeWorkspace?._id) {
+      refetch().then(() => {
+        // Only reset active project if it belongs to a different workspace
+        const currentProject = projects?.find(
+          (p: IProject) => p.id === activeProject?._id
+        )
+        if (!currentProject) {
+          setActiveProject(null)
+        }
+      })
+    }
+  }, [activeWorkspace?._id])
+
+  // Set first project as active by default if there are projects and no active project
+  useEffect(() => {
     if (projects && projects.length > 0 && !activeProject) {
       handleProjectChange(projects[0].id)
     }
   }, [projects])
+
+  console.log("activeProject", activeProject)
 
   return (
     <div className="flex items-center gap-x-2">
@@ -64,7 +91,7 @@ const IssuesPageHeaderActions = () => {
         create status
       </Button>
       <Select
-        value={activeProject?._id}
+        value={activeProject?._id || undefined}
         onValueChange={handleProjectChange}
       >
         <SelectTrigger className="w-[180px]">

@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { queryClient } from "@/providers/react-query-provider"
-import queries from "@/queries"
 import { statusServices } from "@/services/status-services"
 import { destroyAllModal } from "@/stores/store-actions/modal-action"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -38,7 +37,7 @@ const CreateStatusModal = ({ data }: any) => {
     mutationFn: statusServices.createStatus,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: queries.statuses.getStatuses(data).queryKey,
+        queryKey: ["statuses", data],
         exact: true,
         refetchType: "all",
       })

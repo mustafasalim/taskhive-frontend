@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import {
   AlertCircle,
-  Calendar,
+  Calendar as CalendarIcon,
   Clock,
   MessageSquare,
   Send,
@@ -35,6 +35,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
 
 const priorityColors: Record<string, string> = {
   low: "text-blue-500 bg-blue-50 dark:bg-blue-900/20",
@@ -63,6 +69,9 @@ const ViewIssuePage = () => {
   const [editPriority, setEditPriority] = useState<"low" | "medium" | "high">(
     issue?.priority ?? "low"
   )
+  const [editDueDate, setEditDueDate] = useState<Date | undefined>(
+    issue?.dueDate ? new Date(issue.dueDate) : undefined
+  )
 
   const { mutate: updateIssue, isPending } = useMutation({
     mutationFn: (data: UpdateIssueDto) =>
@@ -87,6 +96,7 @@ const ViewIssuePage = () => {
     setEditTitle(issue?.title ?? "")
     setEditDescription(issue?.description ?? "")
     setEditPriority(issue?.priority ?? "low")
+    setEditDueDate(issue?.dueDate ? new Date(issue.dueDate) : undefined)
     setIsEditing(true)
   }
 
@@ -94,6 +104,7 @@ const ViewIssuePage = () => {
     setEditTitle(issue?.title ?? "")
     setEditDescription(issue?.description ?? "")
     setEditPriority(issue?.priority ?? "low")
+    setEditDueDate(issue?.dueDate ? new Date(issue.dueDate) : undefined)
     setIsEditing(false)
   }
 
@@ -103,6 +114,7 @@ const ViewIssuePage = () => {
       title: editTitle,
       description: editDescription,
       priority: editPriority,
+      dueDate: editDueDate,
     }
     updateIssue(updateData)
   }
@@ -290,6 +302,29 @@ const ViewIssuePage = () => {
                           <SelectItem value="high">High Priority</SelectItem>
                         </SelectContent>
                       </Select>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start text-left font-normal"
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {editDueDate ? (
+                              format(editDueDate, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={editDueDate}
+                            onSelect={setEditDueDate}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                       <div className="flex items-center gap-2">
                         <Button
                           size="sm"
@@ -452,7 +487,7 @@ const ViewIssuePage = () => {
             <div className="space-y-2">
               <h3 className="text-sm font-semibold flex items-center gap-2">
                 <span className="w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
-                  <Calendar className="h-3 w-3 text-blue-500" />
+                  <CalendarIcon className="h-3 w-3 text-blue-500" />
                 </span>
                 Due Date
               </h3>

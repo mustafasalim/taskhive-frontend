@@ -12,7 +12,7 @@ export const issueServices = {
         value.forEach((item) => formData.append(key, String(item)))
       } else if (value instanceof Date) {
         formData.append(key, value.toISOString())
-      } else if (value !== undefined) {
+      } else if (value !== undefined && value !== null) {
         formData.append(key, String(value))
       }
     })

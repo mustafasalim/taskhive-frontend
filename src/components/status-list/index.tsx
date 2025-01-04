@@ -4,7 +4,7 @@ import { statusServices } from "@/services/status-services"
 import { Status } from "@/services/status-services/type"
 import { useProjectStore } from "@/stores/project-slice"
 import { Button } from "@/components/ui/button"
-import { Plus, MoreVertical, GripVertical } from "lucide-react"
+import { Plus, MoreVertical, GripVertical, AlertCircle } from "lucide-react"
 import { createModal } from "@/stores/store-actions/modal-action"
 import { issueServices } from "@/services/issue-services"
 import { Issue } from "@/services/issue-services/type"
@@ -25,10 +25,12 @@ import {
 } from "react-beautiful-dnd"
 import { useEffect } from "react"
 import { useWorkspaceStore } from "@/stores/workspace-slice"
+import { Alert, AlertDescription } from "../ui/alert"
+import { Link } from "react-router-dom"
 
 const StatusList = () => {
   const queryClient = useQueryClient()
-  const { activeProject } = useProjectStore()
+  const { activeProject, setActiveProject } = useProjectStore()
   const { activeWorkspace } = useWorkspaceStore()
   const { data: statuses, isLoading } = useQuery({
     queryKey: ["statuses", activeProject?._id],
@@ -166,14 +168,26 @@ const StatusList = () => {
     }
   }
 
-  useEffect(() => {}, [activeWorkspace])
-
   if (isLoading) {
     return <div className="p-4">Loading statuses...</div>
   }
 
   if (!activeProject) {
-    return <div className="p-4">Please select a project first.</div>
+    return (
+      <Alert className="mt-4 mx-4">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Please select a project first. if no project is found, please create
+          one.
+          <Link
+            className=" underline"
+            to="/dashboard/workspace/projects"
+          >
+            create
+          </Link>
+        </AlertDescription>
+      </Alert>
+    )
   }
 
   return (

@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Status } from "@/services/status-services/type"
 import { useState, useRef } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
@@ -21,8 +22,15 @@ import { destroyAllModal } from "@/stores/store-actions/modal-action"
 import { useWorkspaceStore } from "@/stores/workspace-slice"
 import { workspaceServices } from "@/services/workspace-services"
 import { IWorkspaceMember } from "@/services/workspace-services/type"
-import { Image as ImageIcon } from "lucide-react"
+import { Image as ImageIcon, Calendar } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
+import { format } from "date-fns"
+import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 interface CreateIssueModalProps {
   data: {
@@ -36,9 +44,10 @@ const CreateIssueModal = ({
 }: CreateIssueModalProps) => {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
-  const [assignedTo, setAssignedTo] = useState<string>("")
+  const [assignedTo, setAssignedTo] = useState<string[]>([])
   const [priority, setPriority] = useState<"low" | "medium" | "high">("low")
   const [selectedImages, setSelectedImages] = useState<File[]>([])
+  const [dueDate, setDueDate] = useState<Date | undefined>(undefined)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const queryClient = useQueryClient()
   const { activeWorkspace } = useWorkspaceStore()
@@ -57,6 +66,7 @@ const CreateIssueModal = ({
       assignedTo: string[]
       priority: "low" | "medium" | "high"
       images: File[]
+      dueDate: Date | undefined
     }) =>
       issueServices.addIssueToStatus({
         title: data.title,
@@ -66,6 +76,7 @@ const CreateIssueModal = ({
         statusId: status._id,
         project: status.projectId,
         images: data.images,
+        dueDate: data.dueDate,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -120,9 +131,10 @@ const CreateIssueModal = ({
     createIssue({
       title,
       description,
-      assignedTo: assignedTo ? [assignedTo] : [],
+      assignedTo,
       priority,
       images: selectedImages,
+      dueDate: dueDate || undefined,
     })
   }
 
@@ -199,24 +211,36 @@ const CreateIssueModal = ({
             >
               Assign To
             </label>
-            <Select
-              value={assignedTo}
-              onValueChange={setAssignedTo}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a member" />
-              </SelectTrigger>
-              <SelectContent>
+            <div className="border rounded-md">
+              <div className="p-4 space-y-2">
                 {members.map((member) => (
-                  <SelectItem
+                  <div
                     key={member.id}
-                    value={member.id}
+                    className="flex items-center space-x-2"
                   >
-                    {member.name}
-                  </SelectItem>
+                    <Checkbox
+                      id={member.id}
+                      checked={assignedTo.includes(member.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setAssignedTo([...assignedTo, member.id])
+                        } else {
+                          setAssignedTo(
+                            assignedTo.filter((id) => id !== member.id)
+                          )
+                        }
+                      }}
+                    />
+                    <label
+                      htmlFor={member.id}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      {member.name}
+                    </label>
+                  </div>
                 ))}
-              </SelectContent>
-            </Select>
+              </div>
+            </div>
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium">Images</label>
@@ -261,6 +285,28 @@ const CreateIssueModal = ({
                 </div>
               )}
             </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Due Date</label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal"
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <CalendarComponent
+                  mode="single"
+                  selected={dueDate}
+                  onSelect={setDueDate}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="flex justify-end gap-2">
             <Button
