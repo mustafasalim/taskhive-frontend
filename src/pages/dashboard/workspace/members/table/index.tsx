@@ -41,7 +41,9 @@ const MembersTable = () => {
 
   return (
     <Table className="text-xs text-black dark:text-zinc-200">
-      {data?.length <= 0 && <TableCaption>No members found.</TableCaption>}
+      {!isLoading && data?.length === 0 && (
+        <TableCaption>No members found.</TableCaption>
+      )}
       <TableHeader>
         <TableRow>
           {table.getHeaderGroups().map((headerGroup) =>
@@ -64,8 +66,17 @@ const MembersTable = () => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {table.getRowModel().rows.map((row) => (
-          <>
+        {isLoading ? (
+          <TableRow>
+            <TableCell
+              colSpan={columns.length}
+              className="h-24 text-center"
+            >
+              Loading members...
+            </TableCell>
+          </TableRow>
+        ) : (
+          table.getRowModel().rows.map((row) => (
             <TableRow key={row.id}>
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id}>
@@ -75,18 +86,8 @@ const MembersTable = () => {
                 </TableCell>
               ))}
             </TableRow>
-            {isLoading && (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  Loading...
-                </TableCell>
-              </TableRow>
-            )}
-          </>
-        ))}
+          ))
+        )}
       </TableBody>
     </Table>
   )

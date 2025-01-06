@@ -28,6 +28,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { toast } from "@/components/ui/use-toast"
 
 const formSchema = z.object({
   title: z.string().optional(),
@@ -52,7 +53,18 @@ const EditProjectModal = ({ data }: any) => {
         queryKey: queries.projects.getProjects(activeWorkspace?._id as string)
           .queryKey,
       })
+      toast({
+        title: "Project updated",
+        description: "The project has been updated successfully.",
+      })
       destroyAllModal()
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update project. Please try again.",
+        variant: "destructive",
+      })
     },
   })
 

@@ -9,7 +9,10 @@ export const issueServices = {
     // Append issue data
     Object.entries(rest).forEach(([key, value]) => {
       if (Array.isArray(value)) {
-        value.forEach((item) => formData.append(key, String(item)))
+        // For arrays like assignedTo, append each value with the same key
+        value.forEach((item) => {
+          formData.append(`${key}[]`, String(item))
+        })
       } else if (value instanceof Date) {
         formData.append(key, value.toISOString())
       } else if (value !== undefined && value !== null) {

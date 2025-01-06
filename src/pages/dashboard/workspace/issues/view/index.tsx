@@ -41,6 +41,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 const priorityColors: Record<string, string> = {
   low: "text-blue-500 bg-blue-50 dark:bg-blue-900/20",
@@ -55,6 +63,7 @@ const ViewIssuePage = () => {
   const [isVideoChat, setIsVideoChat] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const queryClient = useQueryClient()
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const { data: issue, isLoading } = useQuery<Issue>({
     queryKey: ["issue", issueId],
@@ -214,8 +223,12 @@ const ViewIssuePage = () => {
   })
 
   const handleDeleteIssue = () => {
+    setShowDeleteConfirm(true)
+  }
+
+  const handleConfirmDelete = () => {
     deleteIssueMutation()
-    window.location.reload()
+    setShowDeleteConfirm(false)
   }
 
   if (isVideoChat && issue) {
@@ -259,11 +272,40 @@ const ViewIssuePage = () => {
               variant="destructive"
               onClick={handleDeleteIssue}
             >
-              <Trash2 className=" h-4 w-4" />
+              <Trash2 className="h-4 w-4" />
             </Button>
           </div>
         }
       />
+
+      <Dialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Issue</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this issue? This action cannot be
+              undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteConfirm(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex-1 max-w-4xl mx-auto w-full py-8 px-4">
         <div className="space-y-6">

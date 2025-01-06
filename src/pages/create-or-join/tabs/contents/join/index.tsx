@@ -1,5 +1,6 @@
-import BottomGradient from "@/components/bottom-gradient"
-import { Button } from "@/components/ui/button"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
 import {
   Card,
   CardContent,
@@ -7,6 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Form,
   FormControl,
@@ -15,25 +18,32 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
 import { invitationServices } from "@/services/invitation-services"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useMutation } from "@tanstack/react-query"
-import { Loader2 } from "lucide-react"
-import { useForm } from "react-hook-form"
+import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
-import { z } from "zod"
+import { Loader2 } from "lucide-react"
+import BottomGradient from "@/components/bottom-gradient"
 
 const formSchema = z.object({
-  inviteCode: z.string().min(1, { message: "code is required" }),
+  inviteCode: z.string().min(1, {
+    message: "Code is required",
+  }),
 })
 
 const JoinTabContent = () => {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   const joinWorkpsaceMutation = useMutation({
     mutationFn: invitationServices.joinWorkspace,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Invalidate workspace members query
+      queryClient.invalidateQueries({
+        queryKey: ["workspaces"],
+      })
+      queryClient.invalidateQueries({
+        queryKey: [data.workspace._id, "members"],
+      })
       navigate("/dashboard")
     },
   })
@@ -48,6 +58,7 @@ const JoinTabContent = () => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     joinWorkpsaceMutation.mutate(values)
   }
+
   return (
     <Card>
       <CardHeader>

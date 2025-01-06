@@ -28,6 +28,7 @@ import { useMutation } from "@tanstack/react-query"
 import { Loader2, Smile } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { toast } from "@/components/ui/use-toast"
 
 const formSchema = z.object({
   name: z.string().max(16).min(3),
@@ -44,7 +45,18 @@ const CreateProjectModal = ({ data }: any) => {
         queryKey: queries.projects.getProjects(activeWorkspace?._id as string)
           .queryKey,
       })
+      toast({
+        title: "Project created",
+        description: "The project has been created successfully.",
+      })
       destroyAllModal()
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create project. Please try again.",
+        variant: "destructive",
+      })
     },
   })
 

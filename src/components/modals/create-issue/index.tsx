@@ -67,14 +67,16 @@ const CreateIssueModal = ({
       priority: "low" | "medium" | "high"
       images: File[]
       dueDate: Date | undefined
+      statusId: string
+      project: string
     }) =>
       issueServices.addIssueToStatus({
         title: data.title,
         description: data.description,
         assignedTo: data.assignedTo,
         priority: data.priority,
-        statusId: status._id,
-        project: status.projectId,
+        statusId: data.statusId,
+        project: data.project,
         images: data.images,
         dueDate: data.dueDate,
       }),
@@ -135,6 +137,8 @@ const CreateIssueModal = ({
       priority,
       images: selectedImages,
       dueDate: dueDate || undefined,
+      statusId: status._id,
+      project: status.projectId,
     })
   }
 

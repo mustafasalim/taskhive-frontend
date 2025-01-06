@@ -1,5 +1,5 @@
 import api from "../api"
-import { CreateStatusDto, UpdateStatusDto } from "./type"
+import { CreateStatusDto, UpdateStatusDto, Status } from "./type"
 
 export const statusServices = {
   createStatus: async (data: CreateStatusDto) => {
@@ -9,7 +9,12 @@ export const statusServices = {
 
   getStatusesByProject: async (projectId: string) => {
     const response = await api.get(`statuses/${projectId}`)
-    return response.data
+    return response.data.map(
+      (status: { project: string } & Omit<Status, "projectId">) => ({
+        ...status,
+        projectId: status.project,
+      })
+    )
   },
 
   updateStatus: async (statusId: string, data: UpdateStatusDto) => {

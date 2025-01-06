@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input"
 import { queryClient } from "@/providers/react-query-provider"
 import { statusServices } from "@/services/status-services"
 import { destroyAllModal } from "@/stores/store-actions/modal-action"
+import { toast } from "@/components/ui/use-toast"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation } from "@tanstack/react-query"
 import { Loader2 } from "lucide-react"
@@ -47,7 +48,19 @@ const CreateStatusModal = ({ data }: any) => {
         exact: false,
       })
 
+      toast({
+        title: "Status created",
+        description: "The status has been created successfully.",
+      })
+
       destroyAllModal()
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create status. Please try again.",
+        variant: "destructive",
+      })
     },
   })
 
@@ -98,7 +111,7 @@ const CreateStatusModal = ({ data }: any) => {
                     <FormLabel>Status Name</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="e.g. To Do, In Progress, Done"
+                        placeholder="Enter status name"
                         {...field}
                       />
                     </FormControl>
@@ -106,12 +119,11 @@ const CreateStatusModal = ({ data }: any) => {
                   </FormItem>
                 )}
               />
-
               <DialogFooter>
                 <Button
-                  disabled={createStatusMutation.isPending}
                   variant="animated"
                   type="submit"
+                  disabled={createStatusMutation.isPending}
                 >
                   {createStatusMutation.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin mx-auto" />

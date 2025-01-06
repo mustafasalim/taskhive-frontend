@@ -25,6 +25,7 @@ import { useMutation, useQuery } from "@tanstack/react-query"
 import { Edit2, EllipsisVertical, Trash2, UserCog } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { toast } from "@/components/ui/use-toast"
 
 interface ColumnActionsProps {
   row: IProject
@@ -76,6 +77,17 @@ const ColumnActions = (props: ColumnActionsProps) => {
       queryClient.invalidateQueries({
         queryKey: queries.projects.getProjects(activeWorkspace?._id as string)
           .queryKey,
+      })
+      toast({
+        title: "Project deleted",
+        description: "The project has been deleted successfully.",
+      })
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to delete project. Please try again.",
+        variant: "destructive",
       })
     },
   })

@@ -3,11 +3,11 @@ import { createQueryKeys } from "@lukemorales/query-key-factory"
 
 const workspaces = createQueryKeys("workspaces", {
   getWorkspaces: {
-    queryKey: [""],
+    queryKey: ["workspaces"],
     queryFn: workspaceServices.getWorkspaces,
   },
   getWorkspaceMembers: (workspaceId: string) => ({
-    queryKey: [""],
+    queryKey: [workspaceId, "members"],
     queryFn: () => workspaceServices.getWorkspaceMembers(workspaceId),
   }),
 })
